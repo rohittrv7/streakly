@@ -4,19 +4,24 @@ const THEME_COLORS = {
   elevated: "#232326",
   border: "rgba(255, 255, 255, 0.06)",
   primary: "#D4FF3F",
+  lime: "#D4FF3F",
+  coral: "#FF7A59",
+  sky: "#8EA7FF",
+  softBlue: "#8EA7FF",
+  mint: "#6FE3B0",
+  amber: "#FFB800",
   secondary: {
     coral: "#FF7A59",
+    sky: "#8EA7FF",
     softBlue: "#8EA7FF",
     mint: "#6FE3B0",
   },
-  coral: "#FF7A59",
-  softBlue: "#8EA7FF",
-  mint: "#6FE3B0",
   text: {
     primary: "#F5F5F0",
     secondary: "#8A8A90",
-    muted: "#66666A",
+    muted: "#8A8A90",
   },
+  muted: "#8A8A90",
 };
 
 const THEME_RADIUS = {

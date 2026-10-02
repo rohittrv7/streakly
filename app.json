@@ -8,9 +8,12 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.yourname.streakly"
     },
     "android": {
+      "package": "com.yourname.streakly",
+      "versionCode": 1,
       "adaptiveIcon": {
         "backgroundColor": "#0F0F10",
         "foregroundImage": "./assets/android-icon-foreground.png",
@@ -33,7 +36,19 @@
           "imageWidth": 200
         }
       ],
-      "expo-font"
-    ]
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/notification-icon.png",
+          "color": "#D4FF3F"
+        }
+      ],
+      "expo-font",
+      "expo-asset",
+      "expo-sharing"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
   }
 }

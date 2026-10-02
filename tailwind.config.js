@@ -6,6 +6,7 @@ const {
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  darkMode: "class",
   content: [
     "./src/**/*.{js,jsx,ts,tsx}",
     "./app/**/*.{js,jsx,ts,tsx}",
@@ -19,9 +20,14 @@ module.exports = {
         surface: THEME_COLORS.surface,
         elevated: THEME_COLORS.elevated,
         border: THEME_COLORS.border,
+        accent: {
+          DEFAULT: "rgb(var(--color-accent) / <alpha-value>)",
+          soft: "var(--color-accent-soft)",
+          border: "var(--color-accent-border)",
+        },
         primary: {
-          DEFAULT: THEME_COLORS.primary,
-          lime: THEME_COLORS.primary,
+          DEFAULT: "rgb(var(--color-accent) / <alpha-value>)",
+          lime: THEME_COLORS.lime,
         },
         secondary: {
           DEFAULT: THEME_COLORS.secondary.coral,
@@ -29,9 +35,13 @@ module.exports = {
           blue: THEME_COLORS.secondary.softBlue,
           mint: THEME_COLORS.secondary.mint,
         },
+        lime: THEME_COLORS.lime,
         coral: THEME_COLORS.coral,
+        sky: THEME_COLORS.sky,
         softBlue: THEME_COLORS.softBlue,
         mint: THEME_COLORS.mint,
+        amber: "#FFB800",
+        muted: THEME_COLORS.muted,
         text: THEME_COLORS.text,
       },
       fontFamily: {
