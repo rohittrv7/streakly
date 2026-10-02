@@ -52,6 +52,8 @@ export function VideoPlayerSheet({
     Linking.openURL(buildOpenUrl(link)).catch(() => {});
   };
 
+  const isPlaylist = link.kind === "playlist";
+
   return (
     <Sheet visible={visible} onClose={handleClose} title={link.title || "YouTube Player"} size="full">
       <View className="gap-4 pb-3">
@@ -68,13 +70,26 @@ export function VideoPlayerSheet({
               ref={playerRef}
               height={220}
               play={playing}
-              videoId={link.externalId}
+              videoId={isPlaylist ? undefined : link.externalId}
+              playList={isPlaylist ? link.externalId : undefined}
+              useLocalHTML
+              baseUrlOverride="https://www.youtube.com"
+              forceAndroidAutoplay
+              webViewProps={{
+                androidLayerType: "hardware",
+                allowsFullscreenVideo: true,
+                mediaPlaybackRequiresUserAction: false,
+              }}
               initialPlayerParams={{
-                startInSeconds: link.watchedTillSeconds || 0,
+                start: link.watchedTillSeconds || 0,
                 preventFullScreen: false,
+                rel: false,
               }}
               onChangeState={handleStateChange}
-              onError={() => setHasError(true)}
+              onError={(err: string) => {
+                if (__DEV__) console.warn("[VideoPlayer] playback error:", err);
+                setHasError(true);
+              }}
             />
           </View>
         )}
