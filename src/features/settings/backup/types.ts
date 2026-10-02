@@ -1,4 +1,4 @@
-export const BACKUP_SCHEMA_VERSION = 1;
+export const BACKUP_SCHEMA_VERSION = 2;
 export const BACKUP_APP_NAME = "streakly";
 
 export const USER_PREFERENCES_KEYS = [

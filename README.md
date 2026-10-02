@@ -134,9 +134,41 @@ All app icons, adaptive icon layers, notification silhouettes, and splash screen
 node scripts/generate-assets.js
 ```
 
+## 🔔 Notification Sounds & Native Rebuilds
+
+A custom chime sound is generated programmatically (pure 16-bit PCM, 44.1 kHz, mono WAV) without external downloads:
+
+```bash
+# Re-generate assets/sounds/focus_chime.wav
+node scripts/generate-sounds.js
+```
+
+> **Note on Native Rebuilds**: Adding or changing custom notification sound files in `assets/sounds/` or registering them in `app.json` plugins requires a native rebuild (`npx expo run:android` / `npx expo run:ios` or EAS build) to bundle them into Android raw resources (`res/raw`) and iOS bundle assets. Similarly, changes to `SCHEDULE_EXACT_ALARM` permissions require a native build (not supported dynamically inside standard Expo Go).
+
+## 🔑 How to Get a YouTube API Key (Optional)
+
+To import full YouTube playlists with titles, durations, and progress tracking:
+
+1. **Google Cloud Console**:
+   - Go to [Google Cloud Console](https://console.cloud.google.com/) and create a new project (e.g. `Streakly-Tracker`).
+2. **Enable YouTube Data API v3**:
+   - Navigate to **APIs & Services → Library**, search for `YouTube Data API v3`, and click **Enable**.
+3. **Generate an API Key**:
+   - Go to **APIs & Services → Credentials → Create Credentials → API Key**.
+4. **Key Restrictions (Recommended)**:
+   - **API Restrictions**: Restrict the key to only `YouTube Data API v3`.
+   - **Application Restrictions**: Restrict to Android apps by adding your package name (`com.yourname.streakly`) and SHA-1 certificate fingerprint.
+   - To obtain your local debug/release SHA-1 fingerprint on Android:
+     ```bash
+     cd android && ./gradlew signingReport
+     ```
+5. **Usage in Streakly**:
+   - In Streakly, open **Settings → Advanced → YouTube API Key** and paste your key.
+   - Alternatively, add it to your local gitignored `.env` file as `EXPO_PUBLIC_YOUTUBE_API_KEY=AIzaSy...`.
+
 ---
 
 ## ⚠️ Known Limitations
 
 - **Local-Only Storage**: All data is stored directly in SQLite on the local device. There is no cloud sync or account login. Backups can be exported and transferred manually as JSON.
-- **Expo Go Limitations**: Advanced native notification triggers, foreground service audio, and full background wakeups require a development build (`npx expo run:android` / `npx expo run:ios`).
+- **Expo Go Limitations**: Advanced native notification triggers, custom raw sound channels, foreground alarms, and exact wakeups require a development build (`npx expo run:android` / `npx expo run:ios`).

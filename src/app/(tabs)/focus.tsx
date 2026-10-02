@@ -3,6 +3,7 @@ import { View, Pressable } from "react-native";
 import { Timer, GearSix } from "phosphor-react-native";
 import { Screen, Text, Stagger, Skeleton } from "@/components/ui";
 import { THEME_COLORS } from "@/lib/theme";
+import { plannerRepo } from "@/features/planner/repo";
 import {
   useFocusStore,
   useFocusTimer,
@@ -15,6 +16,7 @@ import {
   FocusSettingsSheet,
   PreNotificationPermissionSheet,
   FinishedWhileAwaySheet,
+  FocusCompletionOverlay,
 } from "@/features/focus";
 
 export default function FocusScreen() {
@@ -40,6 +42,8 @@ export default function FocusScreen() {
   const selectCategory = useFocusStore((s) => s.selectCategory);
   const dismissFinishedWhileAway = useFocusStore((s) => s.dismissFinishedWhileAway);
   const setShowPrePermissionSheet = useFocusStore((s) => s.setShowPrePermissionSheet);
+  const completionOverlay = useFocusStore((s) => s.completionOverlay);
+  const hideCompletionOverlay = useFocusStore((s) => s.hideCompletionOverlay);
 
   const { mode, status, progress, completedFocusCount, clock } = useFocusTimer();
   const { sessions, todayMinutes, todaySessionCount } = useFocusStats();
@@ -152,9 +156,27 @@ export default function FocusScreen() {
       />
 
       <FinishedWhileAwaySheet
-        visible={finishedWhileAway}
+        visible={finishedWhileAway && !completionOverlay?.visible}
         onClose={dismissFinishedWhileAway}
       />
+
+      {completionOverlay && (
+        <FocusCompletionOverlay
+          visible={completionOverlay.visible}
+          withSound={completionOverlay.withSound}
+          completedMode={completionOverlay.completedMode}
+          linkedTaskId={completionOverlay.linkedTaskId}
+          onClose={hideCompletionOverlay}
+          onNextPhase={() => {
+            hideCompletionOverlay();
+            start();
+          }}
+          onMarkTaskDone={async (taskId) => {
+            await plannerRepo.toggleDone(taskId);
+            hideCompletionOverlay();
+          }}
+        />
+      )}
     </Screen>
   );
 }

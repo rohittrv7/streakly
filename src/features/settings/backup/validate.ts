@@ -125,9 +125,21 @@ export function validateBackupPayload(rawJson: string): ValidationResult {
     return item && typeof item.id === "string" && typeof item.task_id === "string" && taskIds.has(item.task_id);
   });
 
-  const cleanLinks = links.filter((link: any) => {
-    return link && typeof link.id === "string" && typeof link.task_id === "string" && taskIds.has(link.task_id);
-  });
+  const validLinkIds = new Set<string>();
+  for (const l of links) {
+    if (l && typeof l.id === "string" && typeof l.task_id === "string" && taskIds.has(l.task_id)) {
+      validLinkIds.add(l.id);
+    }
+  }
+
+  const cleanLinks = links
+    .filter((l: any) => l && typeof l.id === "string" && typeof l.task_id === "string" && taskIds.has(l.task_id))
+    .map((l: any) => ({
+      ...l,
+      position: typeof l.position === "number" ? l.position : null,
+      duration_seconds: typeof l.duration_seconds === "number" ? l.duration_seconds : null,
+      parent_link_id: typeof l.parent_link_id === "string" && validLinkIds.has(l.parent_link_id) ? l.parent_link_id : null,
+    }));
 
   // Focus sessions: map orphan task_ids to null
   const cleanFocus = focus.map((f: any) => ({
@@ -162,14 +174,9 @@ export function validateBackupPayload(rawJson: string): ValidationResult {
       focusSessions: cleanFocus.length,
     },
     data: {
-      habits: cleanHabits,
-      habitCompletions: cleanCompletions,
-      habitFreezes: cleanFreezes,
-      tasks: cleanTasks,
-      taskChecklistItems: cleanChecklist,
-      taskLinks: cleanLinks,
-      focusSessions: cleanFocus,
-      settings: cleanSettings,
+      habits: cleanHabits, habitCompletions: cleanCompletions, habitFreezes: cleanFreezes,
+      tasks: cleanTasks, taskChecklistItems: cleanChecklist, taskLinks: cleanLinks,
+      focusSessions: cleanFocus, settings: cleanSettings,
     },
   };
 

@@ -113,11 +113,15 @@ export function parseYouTubeUrl(input: string): ParsedYouTubeLink | null {
   return null;
 }
 
+export { getLinksProgress, getNextUnwatchedLink, type LinksProgress } from "./utils-progress";
+
 export function buildOpenUrl(link: {
   kind: string;
   externalId?: string | null;
   url?: string;
   watchedTillSeconds?: number | null;
+  playlistId?: string | null;
+  position?: number | null;
 }): string {
   let base: string;
   if (link.kind === "playlist" && link.externalId) {
@@ -127,6 +131,12 @@ export function buildOpenUrl(link: {
     base = `https://www.youtube.com/shorts/${link.externalId}`;
   } else if (link.externalId) {
     base = `https://www.youtube.com/watch?v=${link.externalId}`;
+    if (link.playlistId) {
+      base += `&list=${encodeURIComponent(link.playlistId)}`;
+      if (typeof link.position === "number" && link.position > 0) {
+        base += `&index=${link.position}`;
+      }
+    }
   } else {
     base = link.url || "https://www.youtube.com";
   }
@@ -142,47 +152,4 @@ export function buildOpenUrl(link: {
 
 export function getFallbackThumbnail(videoId: string): string {
   return `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
-}
-
-export function getLinksProgress(links: TaskLink[]): {
-  watched: number;
-  total: number;
-  ratio: number;
-} {
-  let watched = 0;
-  let total = 0;
-
-  for (const l of links) {
-    if (l.kind === "playlist") {
-      const pTotal = l.playlistTotal || 0;
-      const pDone = l.playlistDone || 0;
-      if (pTotal > 0) {
-        total += pTotal;
-        watched += Math.min(pDone, pTotal);
-      }
-    } else {
-      total += 1;
-      if (l.watched) watched += 1;
-    }
-  }
-
-  return {
-    watched,
-    total,
-    ratio: total === 0 ? 0 : watched / total,
-  };
-}
-
-export function getNextUnwatchedLink(links: TaskLink[]): TaskLink | null {
-  if (!links || links.length === 0) return null;
-  const nextVideo = links.find((l) => l.kind !== "playlist" && !l.watched);
-  if (nextVideo) return nextVideo;
-
-  const nextPlaylist = links.find((l) => {
-    if (l.kind !== "playlist") return false;
-    const total = l.playlistTotal || 0;
-    const done = l.playlistDone || 0;
-    return total === 0 || done < total;
-  });
-  return nextPlaylist || null;
 }

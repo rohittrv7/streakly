@@ -22,22 +22,24 @@ export async function getPermissionStatus(): Promise<PermissionState> {
   try {
     const settings = await Notifications.getPermissionsAsync();
     const isGranted =
-      settings.granted ||
-      settings.ios?.status === Notifications.IosAuthorizationStatus.PROVISIONAL;
+      Boolean(settings?.granted) ||
+      settings?.ios?.status === Notifications.IosAuthorizationStatus?.PROVISIONAL;
 
     if (__DEV__) {
-      console.log("[notifications/permissions] Current permission status:", settings.status, "granted:", isGranted);
+      console.log("[notifications/permissions] Current permission status:", settings?.status, "granted:", isGranted);
     }
 
     if (isGranted) {
       return { status: "granted", canAskAgain: false };
     }
     return {
-      status: settings.status === "undetermined" ? "undetermined" : "denied",
-      canAskAgain: settings.canAskAgain !== false,
+      status: settings?.status === "undetermined" ? "undetermined" : "denied",
+      canAskAgain: settings?.canAskAgain !== false,
     };
   } catch (err) {
-    console.error("[notifications/permissions] Failed to get permission status:", err);
+    if (__DEV__) {
+      console.warn("[notifications/permissions] Failed to get permission status:", err);
+    }
     return { status: "denied", canAskAgain: false };
   }
 }
@@ -50,7 +52,7 @@ export async function requestNotificationPermission(): Promise<boolean> {
 
   try {
     const current = await Notifications.getPermissionsAsync();
-    if (current.granted) {
+    if (current?.granted) {
       await ensureNotificationChannels();
       return true;
     }
@@ -69,15 +71,17 @@ export async function requestNotificationPermission(): Promise<boolean> {
     });
 
     if (__DEV__) {
-      console.log("[notifications/permissions] Permission request result:", res.status, "granted:", res.granted);
+      console.log("[notifications/permissions] Permission request result:", res?.status, "granted:", res?.granted);
     }
 
-    if (res.granted) {
+    if (res?.granted) {
       await ensureNotificationChannels();
     }
-    return res.granted;
+    return Boolean(res?.granted);
   } catch (err) {
-    console.error("[notifications/permissions] Failed to request permissions:", err);
+    if (__DEV__) {
+      console.warn("[notifications/permissions] Failed to request permissions:", err);
+    }
     return false;
   }
 }
@@ -134,4 +138,15 @@ export function useNotificationPermission() {
     request,
     recordNotNow,
   };
+}
+
+/** Backward-compatible helper for checking notification permission */
+export async function hasNotificationPermission(): Promise<boolean> {
+  const perm = await getPermissionStatus();
+  return perm.status === "granted";
+}
+
+/** Backward-compatible helper for requesting notification permission */
+export async function ensureNotificationPermission(): Promise<boolean> {
+  return requestNotificationPermission();
 }

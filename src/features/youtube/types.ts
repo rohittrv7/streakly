@@ -14,6 +14,9 @@ export interface TaskLink {
   playlistTotal?: number | null;
   playlistDone?: number | null;
   createdAt: string;
+  position?: number | null;
+  durationSeconds?: number | null;
+  parentLinkId?: string | null;
 }
 
 export interface TaskLinkRow {
@@ -30,6 +33,9 @@ export interface TaskLinkRow {
   playlist_total: number | null;
   playlist_done: number | null;
   created_at: string;
+  position?: number | null;
+  duration_seconds?: number | null;
+  parent_link_id?: string | null;
 }
 
 export function mapTaskLinkRow(row: TaskLinkRow): TaskLink {
@@ -47,5 +53,8 @@ export function mapTaskLinkRow(row: TaskLinkRow): TaskLink {
     playlistTotal: row.playlist_total,
     playlistDone: row.playlist_done,
     createdAt: row.created_at,
+    position: row.position ?? null,
+    durationSeconds: row.duration_seconds ?? null,
+    parentLinkId: row.parent_link_id ?? null,
   };
 }

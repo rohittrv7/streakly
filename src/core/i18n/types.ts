@@ -1,3 +1,6 @@
+import type { FocusTranslationSchema, NotificationTranslationSchema } from "./types-features";
+export * from "./types-features";
+
 export type Language = "en" | "hinglish";
 
 export interface TranslationSchema {
@@ -80,29 +83,22 @@ export interface TranslationSchema {
     invalidUrl: string;
     fetchingTitle: string;
     titleTaken: string;
+    apiKey: string;
+    apiKeyHelp: string;
+    importVideos: string;
+    planAcrossDays: string;
+    resync: string;
+    resyncing: string;
+    importing: string;
+    errorNoKey: string;
+    errorInvalidKey: string;
+    errorQuota: string;
+    errorNotFound: string;
+    errorOffline: string;
+    errorTimeout: string;
+    errorUnknown: string;
   };
-  focus: {
-    title: string;
-    focusMode: string;
-    shortBreak: string;
-    longBreak: string;
-    start: string;
-    pause: string;
-    resume: string;
-    stop: string;
-    settings: string;
-    sessionsCompleted: string;
-    freeFocus: string;
-    freeFocusDesc: string;
-    sessionCycle: string;
-    shortBreakNext: string;
-    longBreakComplete: string;
-    focusingOn: string;
-    underOneMinNoise: string;
-    exactDurationTitle: string;
-    minutes: string;
-    seconds: string;
-  };
+  focus: FocusTranslationSchema;
   stats: {
     title: string;
     overview: string;
@@ -112,14 +108,7 @@ export interface TranslationSchema {
     tasksDone: string;
     weeklyActivity: string;
   };
-  notifications: {
-    title: string;
-    subtitleOn: string;
-    subtitleOff: string;
-    masterToggle: string;
-    quietHours: string;
-    testNotification: string;
-  };
+  notifications: NotificationTranslationSchema;
   settings: {
     title: string;
     preferences: string;
@@ -139,6 +128,8 @@ export interface TranslationSchema {
     developer: string;
     uiGallery: string;
     reseed: string;
+    youtubeApiKey: string;
+    youtubeApiKeyHelp: string;
   };
   about: {
     appName: string;

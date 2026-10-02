@@ -4,6 +4,7 @@ import { parseYouTubeUrl, getFallbackThumbnail } from "./utils";
 import { fetchOEmbed } from "./oembed";
 import type { TaskLink } from "./types";
 import { generateId } from "@/core/utils/id";
+import { importPlaylistToTask, resyncPlaylistInTask } from "./playlist-sync";
 
 export interface YouTubeState {
   linksByTask: Record<string, TaskLink[]>;
@@ -18,6 +19,8 @@ export interface YouTubeState {
   setNote: (id: string, taskId: string, note: string | null) => Promise<void>;
   setPlaylistProgress: (id: string, taskId: string, done: number, total: number) => Promise<void>;
   retryMetadata: (id: string, taskId: string) => Promise<string | null>;
+  importPlaylist: (containerLinkId: string, taskId: string, playlistId: string) => Promise<void>;
+  resyncPlaylist: (containerLinkId: string, taskId: string, playlistId: string) => Promise<void>;
 }
 
 export const useYouTubeStore = create<YouTubeState>((set, get) => {
@@ -40,10 +43,7 @@ export const useYouTubeStore = create<YouTubeState>((set, get) => {
         const allLinks = await youTubeRepo.getLinksForTasks(taskIds);
         const grouped: Record<string, TaskLink[]> = {};
         for (const id of taskIds) grouped[id] = [];
-        for (const l of allLinks) {
-          if (!grouped[l.taskId]) grouped[l.taskId] = [];
-          grouped[l.taskId].push(l);
-        }
+        for (const l of allLinks) (grouped[l.taskId] ||= []).push(l);
         set((s) => ({ linksByTask: { ...s.linksByTask, ...grouped } }));
       } catch (err) {
         console.error("Failed to load links for tasks:", err);
@@ -121,7 +121,7 @@ export const useYouTubeStore = create<YouTubeState>((set, get) => {
     removeLink: async (id, taskId) => {
       const prev = get().linksByTask[taskId] || [];
       set((s) => ({
-        linksByTask: { ...s.linksByTask, [taskId]: prev.filter((l) => l.id !== id) },
+        linksByTask: { ...s.linksByTask, [taskId]: prev.filter((l) => l.id !== id && l.parentLinkId !== id) },
       }));
       try {
         await youTubeRepo.removeLink(id);
@@ -140,6 +140,12 @@ export const useYouTubeStore = create<YouTubeState>((set, get) => {
       updateLinkInTask(taskId, id, { watched: nextWatched });
       try {
         await youTubeRepo.updateLink(id, { watched: nextWatched });
+        if (target.parentLinkId) {
+          const children = await youTubeRepo.getChildren(target.parentLinkId);
+          const watchedCount = children.filter((c) => c.watched).length;
+          await youTubeRepo.updateLink(target.parentLinkId, { playlistDone: watchedCount });
+          updateLinkInTask(taskId, target.parentLinkId, { playlistDone: watchedCount });
+        }
         return nextWatched;
       } catch (err) {
         set((s) => ({ linksByTask: { ...s.linksByTask, [taskId]: prev } }));
@@ -174,10 +180,19 @@ export const useYouTubeStore = create<YouTubeState>((set, get) => {
         updateLinkInTask(taskId, id, { title: res.data.title, thumbnailUrl: res.data.thumbnailUrl });
         set((s) => ({ metadataStatus: { ...s.metadataStatus, [id]: "success" } }));
         return res.data.title;
-      } else {
-        set((s) => ({ metadataStatus: { ...s.metadataStatus, [id]: "error" } }));
-        return null;
       }
+      set((s) => ({ metadataStatus: { ...s.metadataStatus, [id]: "error" } }));
+      return null;
+    },
+
+    importPlaylist: async (containerLinkId, taskId, playlistId) => {
+      await importPlaylistToTask(containerLinkId, taskId, playlistId);
+      await get().loadForTask(taskId);
+    },
+
+    resyncPlaylist: async (containerLinkId, taskId, playlistId) => {
+      await resyncPlaylistInTask(containerLinkId, taskId, playlistId);
+      await get().loadForTask(taskId);
     },
   };
 });

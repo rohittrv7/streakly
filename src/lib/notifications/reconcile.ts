@@ -20,7 +20,6 @@ let debounceTimeout: ReturnType<typeof setTimeout> | null = null;
 
 export async function reconcileNotificationsNow(): Promise<void> {
   if (Platform.OS === "web") return;
-
   const Notifications = getNotifications();
   if (!Notifications) return;
 
@@ -51,38 +50,26 @@ export async function reconcileNotificationsNow(): Promise<void> {
     const today = todayStr();
     const windowEnd = addDays(today, 6);
 
-    if (__DEV__) {
-      console.log(`[notifications/reconcile] Starting reconcile (perm: ${perm.status}, master: ${settings.enabled})`);
-    }
-
-    // Fetch completions and tasks for rolling 7-day window
     const [rawCompletions, rawFreezes, tasks] = await Promise.all([
       habitsRepo.getCompletionsInRange(addDays(today, -60), windowEnd),
       habitsRepo.getFreezesInRange(addDays(today, -60), windowEnd),
       plannerRepo.getTasksInRange(today, windowEnd),
     ]);
 
-    // Group completions & freezes by habitId
     const completions: Record<string, string[]> = {};
     for (const c of rawCompletions) (completions[c.habitId] ??= []).push(c.date);
     const freezes: Record<string, string[]> = {};
     for (const f of rawFreezes) (freezes[f.habitId] ??= []).push(f.date);
 
-    // Compute today streaks
     const todayStreaks: Record<string, number> = {};
     for (const h of habits) {
-      todayStreaks[h.id] = computeStreak(
-        h,
-        completions[h.id] || [],
-        today,
-        freezes[h.id] || []
-      );
+      todayStreaks[h.id] = computeStreak(h, completions[h.id] || [], today, freezes[h.id] || []);
     }
 
-    // Pure plan generation
     const desiredPlan = buildNotificationPlan({
       habits,
       completions,
+      freezes,
       tasks,
       settings,
       permissionGranted,
@@ -92,11 +79,6 @@ export async function reconcileNotificationsNow(): Promise<void> {
     });
     plannedCount = desiredPlan.length;
 
-    if (__DEV__) {
-      console.log(`[notifications/reconcile] Generated plan with ${plannedCount} notifications`);
-    }
-
-    // Fetch currently scheduled notifications from system
     const systemScheduled = await Notifications.getAllScheduledNotificationsAsync();
     const existingSummaries: ScheduledSummary[] = systemScheduled
       .filter((s: any) => isOurNotification(s.identifier))
@@ -106,32 +88,28 @@ export async function reconcileNotificationsNow(): Promise<void> {
         contentHash: s.content?.data?.contentHash,
       }));
 
-    // Diff
     const { toCancel, toSchedule } = diffPlan(existingSummaries, desiredPlan);
 
-    // Cancel outdated
     for (const id of toCancel) {
       try {
         await Notifications.cancelScheduledNotificationAsync(id);
         cancelledCount++;
       } catch (err) {
-        const msg = `Cancel error (${id}): ${err instanceof Error ? err.message : String(err)}`;
-        console.error("[notifications/reconcile]", msg);
-        errors.push(msg);
+        errors.push(`Cancel error (${id}): ${err instanceof Error ? err.message : String(err)}`);
       }
     }
 
-    // Schedule new/updated notifications
     for (const item of toSchedule) {
       try {
         const channelId =
-          item.kind === "habit"
+          item.channelId ||
+          (item.kind === "habit" || item.id.startsWith("habit:") || item.id.endsWith(":late")
             ? NOTIFICATION_CHANNELS.habits
-            : item.kind === "task"
+            : item.kind === "task" || item.id.startsWith("task:")
             ? NOTIFICATION_CHANNELS.tasks
-            : NOTIFICATION_CHANNELS.nudges;
+            : NOTIFICATION_CHANNELS.nudges);
 
-        const scheduledId = await Notifications.scheduleNotificationAsync({
+        await Notifications.scheduleNotificationAsync({
           identifier: item.id,
           content: {
             title: item.title,
@@ -151,23 +129,12 @@ export async function reconcileNotificationsNow(): Promise<void> {
           },
         });
         scheduledCount++;
-        if (__DEV__) {
-          console.log(`[notifications/reconcile] Scheduled: ${item.id} -> id: ${scheduledId} at ${item.fireAt.toISOString()}`);
-        }
       } catch (err) {
-        const msg = `Schedule error (${item.id}): ${err instanceof Error ? err.message : String(err)}`;
-        console.error("[notifications/reconcile]", msg);
-        errors.push(msg);
+        errors.push(`Schedule error (${item.id}): ${err instanceof Error ? err.message : String(err)}`);
       }
     }
-
-    if (__DEV__) {
-      console.log(`[notifications/reconcile] Done: ${scheduledCount} scheduled, ${cancelledCount} cancelled, ${errors.length} errors`);
-    }
   } catch (err) {
-    const msg = `Fatal error: ${err instanceof Error ? err.message : String(err)}`;
-    console.error("[notifications/reconcile]", msg);
-    errors.push(msg);
+    errors.push(`Fatal error: ${err instanceof Error ? err.message : String(err)}`);
   } finally {
     isReconciling = false;
     useReconcileStore.getState().setResult({
@@ -177,7 +144,6 @@ export async function reconcileNotificationsNow(): Promise<void> {
       cancelledCount,
       errors,
     });
-
     if (reRunQueued) {
       reRunQueued = false;
       reconcileNotificationsNow();
@@ -186,9 +152,7 @@ export async function reconcileNotificationsNow(): Promise<void> {
 }
 
 export function requestNotificationReconcile(debounceMs: number = 800): void {
-  if (debounceTimeout) {
-    clearTimeout(debounceTimeout);
-  }
+  if (debounceTimeout) clearTimeout(debounceTimeout);
   debounceTimeout = setTimeout(() => {
     debounceTimeout = null;
     reconcileNotificationsNow();

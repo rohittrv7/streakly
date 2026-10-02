@@ -11,16 +11,3 @@ export * from "./settings";
 export * from "./sync";
 export * from "./copy";
 export * from "./dev";
-
-import { getPermissionStatus, requestNotificationPermission } from "./permissions";
-
-/** Backward-compatible helper for existing code */
-export async function hasNotificationPermission(): Promise<boolean> {
-  const perm = await getPermissionStatus();
-  return perm.status === "granted";
-}
-
-/** Backward-compatible helper for existing code */
-export async function ensureNotificationPermission(): Promise<boolean> {
-  return requestNotificationPermission();
-}

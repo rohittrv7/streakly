@@ -1,48 +1,43 @@
-import { parseISO, startOfWeek, endOfWeek, subMinutes } from "date-fns";
+import { Platform } from "react-native";
+import { parseISO, startOfWeek, endOfWeek } from "date-fns";
 import { addDays, toDateStr } from "@/core/utils/dates";
 import { isScheduledOn } from "@/features/habits/streak";
-import type {
-  PlanBuilderInput,
-  PlannedNotification,
-  ScheduledSummary,
-  NotificationTarget,
-} from "./types";
-import {
-  buildLocalDate,
-  isInsideQuietHours,
-  computeContentHash,
-} from "./plan-utils";
-import {
-  NOTIFICATION_COPY,
-  getHabitReminderCopy,
-  getTaskReminderCopy,
-} from "./copy";
+import type { PlanBuilderInput, PlannedNotification, NotificationTarget } from "./types";
+import { buildLocalDate, isInsideQuietHours, computeContentHash } from "./plan-utils";
+import { NOTIFICATION_COPY, getPreReminderCopy, getAtReminderCopy, getOverdueReminderCopy, getStreakBrokenCopy } from "./copy";
+import { groupItemsAtSameMinute, enforceDailyLimit, enforcePlatformCap, type ItemWithMeta } from "./plan-limits";
 
 export { OWN_PREFIXES, isOurNotification, diffPlan } from "./diff";
 
-export function buildNotificationPlan(
-  input: PlanBuilderInput,
-  now: Date = new Date()
-): PlannedNotification[] {
+export function buildNotificationPlan(input: PlanBuilderInput, now: Date = new Date()): PlannedNotification[] {
   const {
     habits,
     completions,
+    freezes = {},
     tasks,
     settings,
     permissionGranted,
     language = "en",
     lastOpenAt,
     todayStreaks = {},
+    platform = (Platform.OS === "ios" ? "ios" : "android"),
   } = input;
 
-  if (!settings.enabled || !permissionGranted) {
-    return [];
-  }
+  if (!settings.enabled || !permissionGranted) return [];
 
-  const planned: PlannedNotification[] = [];
   const minFireAtMs = now.getTime() + 5000;
   const today = toDateStr(now);
+  const tomorrow = addDays(today, 1);
   const copyTable = NOTIFICATION_COPY[language] || NOTIFICATION_COPY.en;
+  const tone = settings.tone || "friendly";
+
+  // Platform cap & dynamic window length (2 to 7 days, today & tomorrow always included)
+  const cap = platform === "android" ? 200 : 60;
+  const activeHabitsCount = habits.filter((h) => !h.archivedAt && h.reminderTime).length;
+  const estPerDay = Math.max(1, activeHabitsCount * 2 + 2);
+  const windowDays = Math.max(2, Math.min(7, Math.floor(cap / estPerDay)));
+
+  const candidatesWithMeta: ItemWithMeta[] = [];
 
   const maybeAdd = (
     id: string,
@@ -50,23 +45,28 @@ export function buildNotificationPlan(
     fireAt: Date,
     title: string,
     body: string,
-    target: NotificationTarget
+    target: NotificationTarget,
+    isExplicit: boolean,
+    meta?: { dateStr: string; name?: string; isAt?: boolean }
   ) => {
     if (fireAt.getTime() < minFireAtMs) return;
-    if (
-      settings.quietHoursEnabled &&
-      isInsideQuietHours(fireAt, settings.quietHoursStart, settings.quietHoursEnd)
-    ) {
+    if (!isExplicit && settings.quietHoursEnabled && isInsideQuietHours(fireAt, settings.quietHoursStart, settings.quietHoursEnd)) {
       return;
     }
     const contentHash = computeContentHash(title, body, fireAt, target);
-    planned.push({ id, kind, fireAt, title, body, target, contentHash });
+    const item: PlannedNotification = { id, kind, fireAt, title, body, target, contentHash };
+    candidatesWithMeta.push({
+      item,
+      dateStr: meta?.dateStr || toDateStr(fireAt),
+      name: meta?.name,
+      isAt: meta?.isAt,
+    });
   };
 
-  // 1. Habit Reminders (rolling 7 days: today to today + 6)
+  // 1. Habit Reminders (PRE, AT, OVERDUE)
   if (settings.habitReminders) {
     const activeHabits = habits.filter((h) => !h.archivedAt && h.reminderTime);
-    for (let dayOffset = 0; dayOffset < 7; dayOffset++) {
+    for (let dayOffset = 0; dayOffset < windowDays; dayOffset++) {
       const dateStr = addDays(today, dayOffset);
       const d = parseISO(`${dateStr}T12:00:00`);
       const wStart = toDateStr(startOfWeek(d, { weekStartsOn: 1 }));
@@ -74,101 +74,119 @@ export function buildNotificationPlan(
 
       for (const habit of activeHabits) {
         if (!isScheduledOn(habit, dateStr)) continue;
-
-        // Skip if already done on that date
         const habitCompletions = completions[habit.id] || [];
-        if (habitCompletions.includes(dateStr)) continue;
+        const isDone = habitCompletions.includes(dateStr);
 
-        // For times_per_week: check if weekly target is already met
         if (habit.frequencyType === "times_per_week") {
           const target = habit.timesPerWeek && habit.timesPerWeek > 0 ? habit.timesPerWeek : 1;
-          const weekCompletions = habitCompletions.filter((c) => c >= wStart && c <= wEnd).length;
-          if (weekCompletions >= target) continue;
+          const weekDone = habitCompletions.filter((c) => c >= wStart && c <= wEnd).length;
+          if (weekDone >= target) continue;
         }
 
-        const fireAt = buildLocalDate(dateStr, habit.reminderTime!);
-        const { title, body } = getHabitReminderCopy(habit.name, `${habit.id}_${dateStr}`, language);
-        maybeAdd(`habit:${habit.id}:${dateStr}`, "habit", fireAt, title, body, { type: "today" });
+        const baseFire = buildLocalDate(dateStr, habit.reminderTime!);
+        const streak = dayOffset === 0 ? todayStreaks[habit.id] : undefined;
+
+        if (settings.habitLeadMinutes > 0 && !isDone) {
+          const preFire = new Date(baseFire.getTime() - settings.habitLeadMinutes * 60000);
+          const c = getPreReminderCopy(habit.name, settings.habitLeadMinutes, `${habit.id}_${dateStr}_pre`, streak, tone, language);
+          maybeAdd(`habit:${habit.id}:${dateStr}:pre`, "habit", preFire, c.title, c.body, { type: "today" }, true, { dateStr, name: habit.name });
+        }
+        if ((settings.alsoNotifyAtExactTime || settings.habitLeadMinutes === 0) && !isDone) {
+          const c = getAtReminderCopy(habit.name, `${habit.id}_${dateStr}_at`, streak, tone, language);
+          maybeAdd(`habit:${habit.id}:${dateStr}:at`, "habit", baseFire, c.title, c.body, { type: "today" }, true, { dateStr, name: habit.name, isAt: true });
+        }
+        if (settings.overdueNudge && !isDone) {
+          const lateFire = new Date(baseFire.getTime() + (settings.overdueDelayMinutes || 60) * 60000);
+          const c = getOverdueReminderCopy(habit.name, `${habit.id}_${dateStr}_late`, streak, tone, language);
+          maybeAdd(`habit:${habit.id}:${dateStr}:late`, "overdue", lateFire, c.title, c.body, { type: "today" }, false, { dateStr, name: habit.name });
+        }
       }
     }
   }
 
-  // 2. Task Reminders (rolling 7 days, has startTime, not done, not past)
+  // 2. Task Reminders (PRE, AT)
   if (settings.taskReminders) {
-    const leadMs = settings.taskLeadMinutes * 60 * 1000;
-    const windowEnd = addDays(today, 6);
-
+    const windowEnd = addDays(today, windowDays - 1);
     for (const task of tasks) {
       if (task.done || !task.startTime || task.date < today || task.date > windowEnd) continue;
+      const baseFire = buildLocalDate(task.date, task.startTime);
 
-      const baseFireAt = buildLocalDate(task.date, task.startTime);
-      const fireAt = new Date(baseFireAt.getTime() - leadMs);
-      const { title, body } = getTaskReminderCopy(task.title, task.id, language);
-      maybeAdd(`task:${task.id}`, "task", fireAt, title, body, { type: "task", id: task.id });
-    }
-  }
-
-  // 3. Evening Nudge (daily at eveningNudgeTime)
-  if (settings.eveningNudge) {
-    for (let dayOffset = 0; dayOffset < 7; dayOffset++) {
-      const dateStr = addDays(today, dayOffset);
-      const fireAt = buildLocalDate(dateStr, settings.eveningNudgeTime);
-
-      if (dayOffset === 0) {
-        // Today: calculate pending habits and tasks
-        const activeHabits = habits.filter((h) => !h.archivedAt && isScheduledOn(h, today));
-        const pendingHabitsList = activeHabits.filter((h) => !(completions[h.id] || []).includes(today));
-        const pendingTasksList = tasks.filter((t) => t.date === today && !t.done);
-
-        // Skip if everything scheduled for today is done
-        if (pendingHabitsList.length === 0 && pendingTasksList.length === 0) {
-          continue;
-        }
-
-        let streakAtRiskHabit: { name: string; streak: number } | undefined;
-        for (const h of pendingHabitsList) {
-          const streak = todayStreaks[h.id] || 0;
-          if (streak >= 3 && (!streakAtRiskHabit || streak > streakAtRiskHabit.streak)) {
-            streakAtRiskHabit = { name: h.name, streak };
-          }
-        }
-
-        const body = copyTable.eveningNudge.dynamicBody({
-          pendingHabits: pendingHabitsList.length,
-          pendingTasks: pendingTasksList.length,
-          streakAtRiskHabit,
-        });
-        maybeAdd(`nudge:${dateStr}`, "nudge", fireAt, copyTable.eveningNudge.title, body, { type: "today" });
-      } else {
-        // Future days: generic body
-        maybeAdd(`nudge:${dateStr}`, "nudge", fireAt, copyTable.eveningNudge.title, copyTable.eveningNudge.genericBody, { type: "today" });
+      if (settings.taskLeadMinutes > 0) {
+        const preFire = new Date(baseFire.getTime() - settings.taskLeadMinutes * 60000);
+        const c = getPreReminderCopy(task.title, settings.taskLeadMinutes, `${task.id}_pre`, undefined, tone, language);
+        maybeAdd(`task:${task.id}:pre`, "task", preFire, c.title, c.body, { type: "task", id: task.id }, true, { dateStr: task.date, name: task.title });
+      }
+      if (settings.alsoNotifyAtExactTime || settings.taskLeadMinutes === 0) {
+        const c = getAtReminderCopy(task.title, `${task.id}_at`, undefined, tone, language);
+        maybeAdd(`task:${task.id}:at`, "task", baseFire, c.title, c.body, { type: "task", id: task.id }, true, { dateStr: task.date, name: task.title, isAt: true });
       }
     }
   }
 
-  // 4. Morning Briefing (if enabled)
+  // 3. STREAK BROKEN (planned for tomorrow morning for today's broken streaks >= 2)
+  if (settings.streakBrokenMessage) {
+    const brokenHabits = habits.filter((h) =>
+      !h.archivedAt && isScheduledOn(h, today) &&
+      !(completions[h.id] || []).includes(today) &&
+      !(freezes[h.id] || []).includes(today) &&
+      (todayStreaks[h.id] || 0) >= 2
+    );
+
+    if (brokenHabits.length > 0) {
+      const mornTime = settings.morningBriefingTime || "08:00";
+      let mornFire = buildLocalDate(tomorrow, mornTime);
+      if (settings.quietHoursEnabled && isInsideQuietHours(mornFire, settings.quietHoursStart, settings.quietHoursEnd)) {
+        mornFire = buildLocalDate(tomorrow, settings.quietHoursEnd);
+      }
+      const unit = language === "hinglish" ? "din" : "days";
+      const habitDetails = brokenHabits.map((h) => `${h.name} (${todayStreaks[h.id] || 0} ${unit})`).join(", ");
+      const prefix = brokenHabits.length > 1
+        ? (language === "hinglish" ? `Kal ${brokenHabits.length} streak: ${habitDetails}` : `${brokenHabits.length} streaks: ${habitDetails}`)
+        : habitDetails;
+      const copy = getStreakBrokenCopy(prefix, `broken_${tomorrow}`, tone, language);
+      maybeAdd(`streakbroken:${tomorrow}`, "streakbroken", mornFire, copy.title, copy.body, { type: "today" }, false, { dateStr: tomorrow });
+    }
+  }
+
+  // 4. Evening Nudge & Morning Briefing
+  if (settings.eveningNudge) {
+    for (let dayOffset = 0; dayOffset < windowDays; dayOffset++) {
+      const dateStr = addDays(today, dayOffset);
+      const fireAt = buildLocalDate(dateStr, settings.eveningNudgeTime);
+      if (dayOffset === 0) {
+        const active = habits.filter((h) => !h.archivedAt && isScheduledOn(h, today));
+        const pHabits = active.filter((h) => !(completions[h.id] || []).includes(today)).length;
+        const pTasks = tasks.filter((t) => t.date === today && !t.done).length;
+        if (pHabits > 0 || pTasks > 0) {
+          const body = copyTable.eveningNudge.dynamicBody({ pendingHabits: pHabits, pendingTasks: pTasks });
+          maybeAdd(`nudge:${dateStr}`, "nudge", fireAt, copyTable.eveningNudge.title, body, { type: "today" }, false, { dateStr });
+        }
+      } else {
+        maybeAdd(`nudge:${dateStr}`, "nudge", fireAt, copyTable.eveningNudge.title, copyTable.eveningNudge.genericBody, { type: "today" }, false, { dateStr });
+      }
+    }
+  }
+
   if (settings.morningBriefing) {
-    for (let dayOffset = 0; dayOffset < 7; dayOffset++) {
+    for (let dayOffset = 0; dayOffset < windowDays; dayOffset++) {
       const dateStr = addDays(today, dayOffset);
       const fireAt = buildLocalDate(dateStr, settings.morningBriefingTime);
-
       const scheduledHabits = habits.filter((h) => !h.archivedAt && isScheduledOn(h, dateStr)).length;
       const scheduledTasks = tasks.filter((t) => t.date === dateStr).length;
-
       const body = copyTable.morningBrief.body({ scheduledHabits, scheduledTasks });
-      maybeAdd(`brief:${dateStr}`, "brief", fireAt, copyTable.morningBrief.title, body, { type: "today" });
+      maybeAdd(`brief:${dateStr}`, "brief", fireAt, copyTable.morningBrief.title, body, { type: "today" }, false, { dateStr });
     }
   }
 
   // 5. Comeback Notifications (+3 and +7 days after last open)
   const baseDate = lastOpenAt ? parseISO(lastOpenAt) : now;
-  const day3Fire = buildLocalDate(toDateStr(addDays(toDateStr(baseDate), 3)), "18:00");
-  const day7Fire = buildLocalDate(toDateStr(addDays(toDateStr(baseDate), 7)), "18:00");
+  const d3 = buildLocalDate(toDateStr(addDays(toDateStr(baseDate), 3)), "18:00");
+  const d7 = buildLocalDate(toDateStr(addDays(toDateStr(baseDate), 7)), "18:00");
+  maybeAdd("comeback:3", "comeback", d3, copyTable.comeback.day3.title, copyTable.comeback.day3.body, { type: "today" }, false);
+  maybeAdd("comeback:7", "comeback", d7, copyTable.comeback.day7.title, copyTable.comeback.day7.body, { type: "today" }, false);
 
-  maybeAdd("comeback:3", "comeback", day3Fire, copyTable.comeback.day3.title, copyTable.comeback.day3.body, { type: "today" });
-  maybeAdd("comeback:7", "comeback", day7Fire, copyTable.comeback.day7.title, copyTable.comeback.day7.body, { type: "today" });
-
-  // 6. Cap at 60 notifications, keeping soonest
-  planned.sort((a, b) => a.fireAt.getTime() - b.fireAt.getTime());
-  return planned.slice(0, 60);
+  // 6. Anti-spam grouping, daily limit (8 max with drop order), platform cap
+  const grouped = groupItemsAtSameMinute(candidatesWithMeta, language);
+  const dailyLimited = enforceDailyLimit(grouped);
+  return enforcePlatformCap(dailyLimited, today, tomorrow, platform);
 }

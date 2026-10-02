@@ -1,7 +1,8 @@
 import React from "react";
 import { View, Pressable } from "react-native";
-import { Text, Toggle, Pill } from "@/components/ui";
-import type { NotificationSettings, TaskLeadMinutes } from "@/lib/notifications";
+import { Text, Toggle } from "@/components/ui";
+import { useTranslation } from "@/core/i18n";
+import type { NotificationSettings } from "@/lib/notifications";
 
 interface Props {
   settings: NotificationSettings;
@@ -16,15 +17,15 @@ export function NotificationCategoryToggles({
   onPickEvening,
   onPickMorning,
 }: Props) {
-  const leadOptions: TaskLeadMinutes[] = [0, 5, 10, 30];
+  const { t } = useTranslation();
 
   return (
     <>
       {/* Habit Reminders */}
       <View className="flex-row items-center justify-between">
         <View className="flex-1 pr-3">
-          <Text variant="body" className="font-medium">Habit Reminders</Text>
-          <Text variant="caption">Remind at each habit's scheduled time</Text>
+          <Text variant="body" className="font-medium">{t("notifications.habitRemindersTitle")}</Text>
+          <Text variant="caption">{t("notifications.habitRemindersSubtitle")}</Text>
         </View>
         <Toggle
           value={settings.habitReminders}
@@ -33,40 +34,22 @@ export function NotificationCategoryToggles({
       </View>
 
       {/* Task Reminders */}
-      <View className="gap-2">
-        <View className="flex-row items-center justify-between">
-          <View className="flex-1 pr-3">
-            <Text variant="body" className="font-medium">Task Reminders</Text>
-            <Text variant="caption">Remind before scheduled tasks</Text>
-          </View>
-          <Toggle
-            value={settings.taskReminders}
-            onValueChange={(val) => updateSettings({ taskReminders: val })}
-          />
+      <View className="flex-row items-center justify-between">
+        <View className="flex-1 pr-3">
+          <Text variant="body" className="font-medium">{t("notifications.taskRemindersTitle")}</Text>
+          <Text variant="caption">{t("notifications.taskRemindersSubtitle")}</Text>
         </View>
-
-        {settings.taskReminders && (
-          <View className="flex-row items-center gap-2 pt-1">
-            <Text variant="caption" className="text-xs mr-1 text-text-muted">
-              Alert:
-            </Text>
-            {leadOptions.map((mins) => (
-              <Pill
-                key={mins}
-                label={mins === 0 ? "At start" : `${mins}m before`}
-                selected={settings.taskLeadMinutes === mins}
-                onPress={() => updateSettings({ taskLeadMinutes: mins })}
-              />
-            ))}
-          </View>
-        )}
+        <Toggle
+          value={settings.taskReminders}
+          onValueChange={(val) => updateSettings({ taskReminders: val })}
+        />
       </View>
 
       {/* Evening Nudge */}
       <View className="flex-row items-center justify-between">
         <View className="flex-1 pr-3">
-          <Text variant="body" className="font-medium">Evening Nudge</Text>
-          <Text variant="caption">Summary of uncompleted habits & tasks</Text>
+          <Text variant="body" className="font-medium">{t("notifications.eveningNudgeTitle")}</Text>
+          <Text variant="caption">{t("notifications.eveningNudgeSubtitle")}</Text>
         </View>
         <View className="flex-row items-center gap-2">
           {settings.eveningNudge && (
@@ -89,8 +72,8 @@ export function NotificationCategoryToggles({
       {/* Morning Briefing */}
       <View className="flex-row items-center justify-between">
         <View className="flex-1 pr-3">
-          <Text variant="body" className="font-medium">Morning Briefing</Text>
-          <Text variant="caption">Overview of today's plan</Text>
+          <Text variant="body" className="font-medium">{t("notifications.morningBriefingTitle")}</Text>
+          <Text variant="caption">{t("notifications.morningBriefingSubtitle")}</Text>
         </View>
         <View className="flex-row items-center gap-2">
           {settings.morningBriefing && (

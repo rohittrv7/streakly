@@ -68,12 +68,25 @@ export async function executeRestore(payload: BackupPayload): Promise<{ success:
         );
       }
 
-      // 7. Insert task links
-      for (const l of payload.data.taskLinks) {
+      // 7. Insert task links (parents first, then children)
+      const sortedLinks = [...payload.data.taskLinks].sort((a, b) => {
+        if (!a.parent_link_id && b.parent_link_id) return -1;
+        if (a.parent_link_id && !b.parent_link_id) return 1;
+        return (a.position ?? 0) - (b.position ?? 0);
+      });
+
+      for (const l of sortedLinks) {
         await db.runAsync(
-          `INSERT INTO task_links (id, task_id, url, kind, external_id, title, thumbnail_url, watched, watched_till_seconds, note, playlist_total, playlist_done, created_at)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`,
-          [l.id, l.task_id, l.url, l.kind, l.external_id, l.title, l.thumbnail_url, l.watched, l.watched_till_seconds, l.note, l.playlist_total, l.playlist_done, l.created_at]
+          `INSERT INTO task_links (
+             id, task_id, url, kind, external_id, title, thumbnail_url,
+             watched, watched_till_seconds, note, playlist_total, playlist_done,
+             created_at, position, duration_seconds, parent_link_id
+           ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`,
+          [
+            l.id, l.task_id, l.url, l.kind, l.external_id, l.title, l.thumbnail_url,
+            l.watched, l.watched_till_seconds, l.note, l.playlist_total, l.playlist_done,
+            l.created_at, l.position ?? null, l.duration_seconds ?? null, l.parent_link_id ?? null,
+          ]
         );
       }
 

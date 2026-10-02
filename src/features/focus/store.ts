@@ -9,13 +9,13 @@ import {
   resume as timerResume, reset as timerReset, skip as timerSkip,
   setMode as timerSetMode, nextMode as timerNextMode,
   getDurationMs, getRemainingMs, isFinished, updateSettings as timerUpdateSettings,
-  shouldLogSession,
 } from "./timer";
 import {
   loadSavedSettings, saveSettings, loadSavedTimerState,
   saveTimerState, loadSavedSelection, saveSelection,
 } from "./persistence";
-import { scheduleSessionEnd, cancelSessionEnd, hasNotificationPermission } from "@/lib/notifications";
+import { scheduleSessionEnd, cancelSessionEnd } from "@/lib/notifications/focus";
+import { hasNotificationPermission } from "@/lib/notifications/permissions";
 import { logCompletedFocusSession, logEarlyStoppedFocusSession } from "./session-logger";
 import type { FocusStoreState } from "./types";
 
@@ -28,6 +28,7 @@ export const useFocusStore = create<FocusStoreState>((set, get) => ({
   loading: true,
   finishedWhileAway: false,
   showPrePermissionSheet: false,
+  completionOverlay: null,
 
   init: async () => {
     try {
@@ -63,15 +64,14 @@ export const useFocusStore = create<FocusStoreState>((set, get) => ({
 
     const next = timerNextMode(timer, settings);
     const nextState: TimerState = {
-      mode: next.mode,
-      status: "idle",
-      endAt: null,
+      mode: next.mode, status: "idle", endAt: null,
       remainingMs: getDurationMs(next.mode, settings),
-      completedFocusCount: next.completedFocusCount,
-      startedAt: null,
+      completedFocusCount: next.completedFocusCount, startedAt: null,
     };
-
-    set({ timer: nextState, finishedWhileAway: true });
+    set({
+      timer: nextState, finishedWhileAway: true,
+      completionOverlay: { visible: true, withSound: false, completedMode: timer.mode, linkedTaskId: selectedTaskId },
+    });
     await saveTimerState(nextState);
     await cancelSessionEnd();
     await get().loadToday();
@@ -80,9 +80,7 @@ export const useFocusStore = create<FocusStoreState>((set, get) => ({
 
   start: async () => {
     const { timer, settings } = get();
-    const hasPerm = await hasNotificationPermission();
-    if (!hasPerm) set({ showPrePermissionSheet: true });
-
+    if (!(await hasNotificationPermission())) set({ showPrePermissionSheet: true });
     const nextState = timerStart(timer, settings);
     set({ timer: nextState });
     await saveTimerState(nextState);
@@ -140,6 +138,7 @@ export const useFocusStore = create<FocusStoreState>((set, get) => ({
     const nextState = timerSetMode(get().timer, mode, get().settings);
     set({ timer: nextState });
     await saveTimerState(nextState);
+    await cancelSessionEnd();
   },
 
   finishSession: async () => {
@@ -158,7 +157,10 @@ export const useFocusStore = create<FocusStoreState>((set, get) => ({
       completedFocusCount: next.completedFocusCount,
       startedAt: null,
     };
-    set({ timer: nextState });
+    set({
+      timer: nextState,
+      completionOverlay: { visible: true, withSound: true, completedMode: timer.mode, linkedTaskId: selectedTaskId },
+    });
     await saveTimerState(nextState);
     deactivateKeepAwake().catch(() => {});
     await cancelSessionEnd();
@@ -190,4 +192,6 @@ export const useFocusStore = create<FocusStoreState>((set, get) => ({
 
   dismissFinishedWhileAway: () => set({ finishedWhileAway: false }),
   setShowPrePermissionSheet: (show) => set({ showPrePermissionSheet: show }),
+  showCompletionOverlay: (opts) => set({ completionOverlay: { visible: true, ...opts } }),
+  hideCompletionOverlay: () => set({ completionOverlay: null }),
 }));

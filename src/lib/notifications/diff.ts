@@ -1,6 +1,14 @@
 import type { PlannedNotification, ScheduledSummary } from "./types";
 
-export const OWN_PREFIXES = ["habit:", "task:", "nudge:", "brief:", "comeback:"];
+export const OWN_PREFIXES = [
+  "habit:",
+  "task:",
+  "nudge:",
+  "brief:",
+  "comeback:",
+  "streakbroken:",
+  "group:",
+];
 
 export function isOurNotification(id: string): boolean {
   return OWN_PREFIXES.some((prefix) => id.startsWith(prefix));

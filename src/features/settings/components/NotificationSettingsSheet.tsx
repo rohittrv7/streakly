@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { View, ScrollView, Linking } from "react-native";
 import { Sheet, Text, Button, Toggle } from "@/components/ui";
+import { useTranslation } from "@/core/i18n";
 import {
   useNotificationSettings,
   useNotificationPermission,
@@ -8,6 +9,8 @@ import {
 import { TimePickerSheet } from "@/features/planner/components/TimePickerSheet";
 import { NotificationQuietHoursSection } from "./NotificationQuietHoursSection";
 import { NotificationCategoryToggles } from "./NotificationCategoryToggles";
+import { NotificationTimingSection } from "./NotificationTimingSection";
+import { NotificationOnTimeSection } from "./NotificationOnTimeSection";
 import { PrePermissionSheet } from "./PrePermissionSheet";
 
 interface Props {
@@ -16,6 +19,7 @@ interface Props {
 }
 
 export function NotificationSettingsSheet({ visible, onClose }: Props) {
+  const { t } = useTranslation();
   const { settings, updateSettings } = useNotificationSettings();
   const { status, request, refresh } = useNotificationPermission();
   const [showPrePerm, setShowPrePerm] = useState(false);
@@ -36,19 +40,15 @@ export function NotificationSettingsSheet({ visible, onClose }: Props) {
     updateSettings({ enabled: val });
   };
 
-  const handleEnablePermission = () => {
-    setShowPrePerm(true);
-  };
-
   return (
     <>
-      <Sheet visible={visible} onClose={onClose} title="Notification Settings">
+      <Sheet visible={visible} onClose={onClose} title={t("notifications.sheetTitle")}>
         <ScrollView className="max-h-[500px]" showsVerticalScrollIndicator={false}>
           <View className="gap-5 pb-6">
             {/* Permission Status Row */}
             <View className="p-3.5 rounded-xl bg-surface border border-border">
               <View className="flex-row items-center justify-between mb-1">
-                <Text variant="label">SYSTEM PERMISSION</Text>
+                <Text variant="label">{t("notifications.systemPermissionLabel")}</Text>
                 <View className="flex-row items-center gap-1.5">
                   <View
                     className={`w-2 h-2 rounded-full ${
@@ -61,7 +61,11 @@ export function NotificationSettingsSheet({ visible, onClose }: Props) {
                       isGranted ? "text-primary" : isDenied ? "text-coral" : "text-text-secondary"
                     }`}
                   >
-                    {isGranted ? "Granted" : isDenied ? "Blocked" : "Not Enabled"}
+                    {isGranted
+                      ? t("notifications.permGranted")
+                      : isDenied
+                      ? t("notifications.permBlocked")
+                      : t("notifications.permNotEnabled")}
                   </Text>
                 </View>
               </View>
@@ -69,13 +73,13 @@ export function NotificationSettingsSheet({ visible, onClose }: Props) {
               {isNotAsked && (
                 <View className="mt-2 pt-2 border-t border-border flex-row items-center justify-between">
                   <Text variant="caption" className="text-text-secondary flex-1 mr-2">
-                    Permission required for local alerts.
+                    {t("notifications.permRequiredHelper")}
                   </Text>
                   <Button
                     size="sm"
                     variant="primary"
-                    title="Enable"
-                    onPress={handleEnablePermission}
+                    title={t("notifications.enableButton")}
+                    onPress={() => setShowPrePerm(true)}
                   />
                 </View>
               )}
@@ -83,12 +87,12 @@ export function NotificationSettingsSheet({ visible, onClose }: Props) {
               {isDenied && (
                 <View className="mt-2 pt-2 border-t border-border flex-row items-center justify-between">
                   <Text variant="caption" className="text-coral flex-1 mr-2">
-                    Notifications blocked in Android settings.
+                    {t("notifications.permBlockedHelper")}
                   </Text>
                   <Button
                     size="sm"
                     variant="secondary"
-                    title="Open Settings"
+                    title={t("notifications.openSettings")}
                     onPress={() => Linking.openSettings()}
                   />
                 </View>
@@ -98,8 +102,8 @@ export function NotificationSettingsSheet({ visible, onClose }: Props) {
             {/* Master Toggle */}
             <View className="flex-row items-center justify-between py-2 border-b border-border">
               <View className="flex-1 pr-3">
-                <Text variant="body" className="font-bold">Allow Notifications</Text>
-                <Text variant="caption">Master switch for all Streakly reminders</Text>
+                <Text variant="body" className="font-bold">{t("notifications.allowNotifications")}</Text>
+                <Text variant="caption">{t("notifications.masterSwitchSubtitle")}</Text>
               </View>
               <Toggle value={settings.enabled} onValueChange={handleMasterToggle} />
             </View>
@@ -113,6 +117,11 @@ export function NotificationSettingsSheet({ visible, onClose }: Props) {
                   onPickMorning={() => setActiveTimePicker("morning")}
                 />
 
+                <NotificationTimingSection
+                  settings={settings}
+                  updateSettings={updateSettings}
+                />
+
                 <NotificationQuietHoursSection
                   enabled={settings.quietHoursEnabled}
                   onToggle={(val) => updateSettings({ quietHoursEnabled: val })}
@@ -121,6 +130,8 @@ export function NotificationSettingsSheet({ visible, onClose }: Props) {
                   onPickStart={() => setActiveTimePicker("quietStart")}
                   onPickEnd={() => setActiveTimePicker("quietEnd")}
                 />
+
+                <NotificationOnTimeSection />
               </>
             )}
           </View>

@@ -1,12 +1,29 @@
 import { create } from "zustand";
 import { settingsRepo } from "@/features/settings/repo";
-import type { NotificationSettings, TaskLeadMinutes } from "./types";
+import type { NotificationSettings } from "./types";
+import {
+  clampHabitLeadMinutes,
+  clampTaskLeadMinutes,
+  clampOverdueDelayMinutes,
+  clampTone,
+  clampFocusEndSound,
+} from "./settings-clamp";
+
+export * from "./settings-clamp";
 
 export const DEFAULT_NOTIFICATION_SETTINGS: NotificationSettings = {
   enabled: true,
   habitReminders: true,
+  habitLeadMinutes: 5,
+  alsoNotifyAtExactTime: true,
   taskReminders: true,
-  taskLeadMinutes: 10,
+  taskLeadMinutes: 5,
+  overdueNudge: true,
+  overdueDelayMinutes: 60,
+  streakBrokenMessage: true,
+  tone: "friendly",
+  focusEndSound: "alarm",
+  focusRepeatReminders: true,
   eveningNudge: true,
   eveningNudgeTime: "21:00",
   morningBriefing: false,
@@ -16,11 +33,19 @@ export const DEFAULT_NOTIFICATION_SETTINGS: NotificationSettings = {
   quietHoursEnd: "07:00",
 };
 
-const SETTINGS_KEYS = {
+const K = {
   enabled: "notification_enabled",
   habitReminders: "notification_habit_reminders",
+  habitLeadMinutes: "notification_habit_lead_minutes",
+  alsoNotifyAtExactTime: "notification_also_notify_at_exact_time",
   taskReminders: "notification_task_reminders",
   taskLeadMinutes: "notification_task_lead_minutes",
+  overdueNudge: "notification_overdue_nudge",
+  overdueDelayMinutes: "notification_overdue_delay_minutes",
+  streakBrokenMessage: "notification_streak_broken_message",
+  tone: "notification_tone",
+  focusEndSound: "notification_focus_end_sound",
+  focusRepeatReminders: "notification_focus_repeat_reminders",
   eveningNudge: "notification_evening_nudge",
   eveningNudgeTime: "notification_evening_nudge_time",
   morningBriefing: "notification_morning_briefing",
@@ -31,112 +56,80 @@ const SETTINGS_KEYS = {
   lastAppOpen: "notification_last_app_open",
 } as const;
 
-function clampLeadMinutes(val: number): TaskLeadMinutes {
-  if (val === 0 || val === 5 || val === 10 || val === 30) return val;
-  return 10;
-}
-
 export async function loadNotificationSettings(): Promise<NotificationSettings> {
   const [
-    enabled,
-    habitReminders,
-    taskReminders,
-    taskLeadMinutes,
-    eveningNudge,
-    eveningNudgeTime,
-    morningBriefing,
-    morningBriefingTime,
-    quietHoursEnabled,
-    quietHoursStart,
-    quietHoursEnd,
+    enabled, habitRem, habitLead, alsoExact, taskRem, taskLead,
+    overdue, overdueDelay, streakBroken, tone, focusSound, focusRepeat,
+    eveNudge, eveTime, mornBrief, mornTime, quietEnabled, quietStart, quietEnd,
   ] = await Promise.all([
-    settingsRepo.get(SETTINGS_KEYS.enabled),
-    settingsRepo.get(SETTINGS_KEYS.habitReminders),
-    settingsRepo.get(SETTINGS_KEYS.taskReminders),
-    settingsRepo.get(SETTINGS_KEYS.taskLeadMinutes),
-    settingsRepo.get(SETTINGS_KEYS.eveningNudge),
-    settingsRepo.get(SETTINGS_KEYS.eveningNudgeTime),
-    settingsRepo.get(SETTINGS_KEYS.morningBriefing),
-    settingsRepo.get(SETTINGS_KEYS.morningBriefingTime),
-    settingsRepo.get(SETTINGS_KEYS.quietHoursEnabled),
-    settingsRepo.get(SETTINGS_KEYS.quietHoursStart),
-    settingsRepo.get(SETTINGS_KEYS.quietHoursEnd),
+    settingsRepo.get(K.enabled), settingsRepo.get(K.habitReminders),
+    settingsRepo.get(K.habitLeadMinutes), settingsRepo.get(K.alsoNotifyAtExactTime),
+    settingsRepo.get(K.taskReminders), settingsRepo.get(K.taskLeadMinutes),
+    settingsRepo.get(K.overdueNudge), settingsRepo.get(K.overdueDelayMinutes),
+    settingsRepo.get(K.streakBrokenMessage), settingsRepo.get(K.tone),
+    settingsRepo.get(K.focusEndSound), settingsRepo.get(K.focusRepeatReminders),
+    settingsRepo.get(K.eveningNudge), settingsRepo.get(K.eveningNudgeTime),
+    settingsRepo.get(K.morningBriefing), settingsRepo.get(K.morningBriefingTime),
+    settingsRepo.get(K.quietHoursEnabled), settingsRepo.get(K.quietHoursStart),
+    settingsRepo.get(K.quietHoursEnd),
   ]);
 
   return {
     enabled: enabled !== null ? enabled === "true" : DEFAULT_NOTIFICATION_SETTINGS.enabled,
-    habitReminders:
-      habitReminders !== null ? habitReminders === "true" : DEFAULT_NOTIFICATION_SETTINGS.habitReminders,
-    taskReminders:
-      taskReminders !== null ? taskReminders === "true" : DEFAULT_NOTIFICATION_SETTINGS.taskReminders,
-    taskLeadMinutes:
-      taskLeadMinutes !== null
-        ? clampLeadMinutes(parseInt(taskLeadMinutes, 10))
-        : DEFAULT_NOTIFICATION_SETTINGS.taskLeadMinutes,
-    eveningNudge:
-      eveningNudge !== null ? eveningNudge === "true" : DEFAULT_NOTIFICATION_SETTINGS.eveningNudge,
-    eveningNudgeTime: eveningNudgeTime || DEFAULT_NOTIFICATION_SETTINGS.eveningNudgeTime,
-    morningBriefing:
-      morningBriefing !== null ? morningBriefing === "true" : DEFAULT_NOTIFICATION_SETTINGS.morningBriefing,
-    morningBriefingTime:
-      morningBriefingTime || DEFAULT_NOTIFICATION_SETTINGS.morningBriefingTime,
-    quietHoursEnabled:
-      quietHoursEnabled !== null
-        ? quietHoursEnabled === "true"
-        : DEFAULT_NOTIFICATION_SETTINGS.quietHoursEnabled,
-    quietHoursStart: quietHoursStart || DEFAULT_NOTIFICATION_SETTINGS.quietHoursStart,
-    quietHoursEnd: quietHoursEnd || DEFAULT_NOTIFICATION_SETTINGS.quietHoursEnd,
+    habitReminders: habitRem !== null ? habitRem === "true" : DEFAULT_NOTIFICATION_SETTINGS.habitReminders,
+    habitLeadMinutes: habitLead !== null ? clampHabitLeadMinutes(habitLead) : DEFAULT_NOTIFICATION_SETTINGS.habitLeadMinutes,
+    alsoNotifyAtExactTime: alsoExact !== null ? alsoExact === "true" : DEFAULT_NOTIFICATION_SETTINGS.alsoNotifyAtExactTime,
+    taskReminders: taskRem !== null ? taskRem === "true" : DEFAULT_NOTIFICATION_SETTINGS.taskReminders,
+    taskLeadMinutes: taskLead !== null ? clampTaskLeadMinutes(taskLead) : DEFAULT_NOTIFICATION_SETTINGS.taskLeadMinutes,
+    overdueNudge: overdue !== null ? overdue === "true" : DEFAULT_NOTIFICATION_SETTINGS.overdueNudge,
+    overdueDelayMinutes: overdueDelay !== null ? clampOverdueDelayMinutes(overdueDelay) : DEFAULT_NOTIFICATION_SETTINGS.overdueDelayMinutes,
+    streakBrokenMessage: streakBroken !== null ? streakBroken === "true" : DEFAULT_NOTIFICATION_SETTINGS.streakBrokenMessage,
+    tone: tone !== null ? clampTone(tone) : DEFAULT_NOTIFICATION_SETTINGS.tone,
+    focusEndSound: focusSound !== null ? clampFocusEndSound(focusSound) : DEFAULT_NOTIFICATION_SETTINGS.focusEndSound,
+    focusRepeatReminders: focusRepeat !== null ? focusRepeat === "true" : DEFAULT_NOTIFICATION_SETTINGS.focusRepeatReminders,
+    eveningNudge: eveNudge !== null ? eveNudge === "true" : DEFAULT_NOTIFICATION_SETTINGS.eveningNudge,
+    eveningNudgeTime: eveTime || DEFAULT_NOTIFICATION_SETTINGS.eveningNudgeTime,
+    morningBriefing: mornBrief !== null ? mornBrief === "true" : DEFAULT_NOTIFICATION_SETTINGS.morningBriefing,
+    morningBriefingTime: mornTime || DEFAULT_NOTIFICATION_SETTINGS.morningBriefingTime,
+    quietHoursEnabled: quietEnabled !== null ? quietEnabled === "true" : DEFAULT_NOTIFICATION_SETTINGS.quietHoursEnabled,
+    quietHoursStart: quietStart || DEFAULT_NOTIFICATION_SETTINGS.quietHoursStart,
+    quietHoursEnd: quietEnd || DEFAULT_NOTIFICATION_SETTINGS.quietHoursEnd,
   };
 }
 
-export async function saveNotificationSettings(
-  updates: Partial<NotificationSettings>
-): Promise<void> {
-  const promises: Promise<void>[] = [];
-  if (updates.enabled !== undefined) {
-    promises.push(settingsRepo.set(SETTINGS_KEYS.enabled, String(updates.enabled)));
-  }
-  if (updates.habitReminders !== undefined) {
-    promises.push(settingsRepo.set(SETTINGS_KEYS.habitReminders, String(updates.habitReminders)));
-  }
-  if (updates.taskReminders !== undefined) {
-    promises.push(settingsRepo.set(SETTINGS_KEYS.taskReminders, String(updates.taskReminders)));
-  }
-  if (updates.taskLeadMinutes !== undefined) {
-    promises.push(settingsRepo.set(SETTINGS_KEYS.taskLeadMinutes, String(updates.taskLeadMinutes)));
-  }
-  if (updates.eveningNudge !== undefined) {
-    promises.push(settingsRepo.set(SETTINGS_KEYS.eveningNudge, String(updates.eveningNudge)));
-  }
-  if (updates.eveningNudgeTime !== undefined) {
-    promises.push(settingsRepo.set(SETTINGS_KEYS.eveningNudgeTime, updates.eveningNudgeTime));
-  }
-  if (updates.morningBriefing !== undefined) {
-    promises.push(settingsRepo.set(SETTINGS_KEYS.morningBriefing, String(updates.morningBriefing)));
-  }
-  if (updates.morningBriefingTime !== undefined) {
-    promises.push(settingsRepo.set(SETTINGS_KEYS.morningBriefingTime, updates.morningBriefingTime));
-  }
-  if (updates.quietHoursEnabled !== undefined) {
-    promises.push(settingsRepo.set(SETTINGS_KEYS.quietHoursEnabled, String(updates.quietHoursEnabled)));
-  }
-  if (updates.quietHoursStart !== undefined) {
-    promises.push(settingsRepo.set(SETTINGS_KEYS.quietHoursStart, updates.quietHoursStart));
-  }
-  if (updates.quietHoursEnd !== undefined) {
-    promises.push(settingsRepo.set(SETTINGS_KEYS.quietHoursEnd, updates.quietHoursEnd));
-  }
-  await Promise.all(promises);
+export async function saveNotificationSettings(updates: Partial<NotificationSettings>): Promise<void> {
+  const p: Promise<void>[] = [];
+  const add = (k: string, v: unknown) => { if (v !== undefined) p.push(settingsRepo.set(k, String(v))); };
+  add(K.enabled, updates.enabled);
+  add(K.habitReminders, updates.habitReminders);
+  add(K.habitLeadMinutes, updates.habitLeadMinutes);
+  add(K.alsoNotifyAtExactTime, updates.alsoNotifyAtExactTime);
+  add(K.taskReminders, updates.taskReminders);
+  add(K.taskLeadMinutes, updates.taskLeadMinutes);
+  add(K.overdueNudge, updates.overdueNudge);
+  add(K.overdueDelayMinutes, updates.overdueDelayMinutes);
+  add(K.streakBrokenMessage, updates.streakBrokenMessage);
+  add(K.tone, updates.tone);
+  add(K.focusEndSound, updates.focusEndSound);
+  add(K.focusRepeatReminders, updates.focusRepeatReminders);
+  add(K.eveningNudge, updates.eveningNudge);
+  add(K.eveningNudgeTime, updates.eveningNudgeTime);
+  add(K.morningBriefing, updates.morningBriefing);
+  add(K.morningBriefingTime, updates.morningBriefingTime);
+  add(K.quietHoursEnabled, updates.quietHoursEnabled);
+  add(K.quietHoursStart, updates.quietHoursStart);
+  add(K.quietHoursEnd, updates.quietHoursEnd);
+  await Promise.all(p);
 }
 
 export async function recordAppOpen(): Promise<string> {
   const now = new Date().toISOString();
-  await settingsRepo.set(SETTINGS_KEYS.lastAppOpen, now);
+  await settingsRepo.set(K.lastAppOpen, now);
   return now;
 }
 
 export async function getLastAppOpen(): Promise<string | null> {
-  return settingsRepo.get(SETTINGS_KEYS.lastAppOpen);
+  return settingsRepo.get(K.lastAppOpen);
 }
 
 interface NotificationStoreState {

@@ -68,10 +68,12 @@ export function YouTubeSection({
     }
   };
 
+  const topLevelLinks = links.filter((l) => !l.parentLinkId);
+
   return (
     <View className="gap-3">
       <View className="flex-row items-center justify-between">
-        <Text variant="label">VIDEOS ({links.length})</Text>
+        <Text variant="label">VIDEOS ({topLevelLinks.length})</Text>
         {progress.total > 0 && (
           <View className="bg-primary/20 px-2 py-0.5 rounded-pill border border-primary/40">
             <Text className="text-[10px] font-extrabold text-primary">
@@ -90,17 +92,18 @@ export function YouTubeSection({
         />
       )}
 
-      {links.length === 0 ? (
+      {topLevelLinks.length === 0 ? (
         <Text variant="caption" className="text-text-muted text-xs py-1">
           {mode === "view" ? "No companion videos added." : "No companion videos added. Paste a YouTube link to follow along."}
         </Text>
       ) : (
         <View className="gap-2 mt-1">
-          {links.map((link) =>
+          {topLevelLinks.map((link) =>
             link.kind === "playlist" ? (
               <PlaylistCard
                 key={link.id}
                 link={link}
+                childVideos={links.filter((l) => l.parentLinkId === link.id).sort((a, b) => (a.position ?? 0) - (b.position ?? 0))}
                 mode={mode}
                 onUpdateProgress={(done, total) => {
                   if (taskId) store.setPlaylistProgress(link.id, taskId, done, total);
@@ -110,6 +113,7 @@ export function YouTubeSection({
                   if (taskId) store.removeLink(link.id, taskId);
                   else if (onRemovePendingLink) onRemovePendingLink(link.id);
                 }}
+                onOpenVideo={(v) => setActiveLinkForOpen(v)}
               />
             ) : (
               <VideoCard
@@ -145,9 +149,7 @@ export function YouTubeSection({
         }}
       />
       <VideoPlayerSheet
-        visible={activeLinkForPlayer !== null}
-        onClose={() => setActiveLinkForPlayer(null)}
-        link={activeLinkForPlayer}
+        visible={activeLinkForPlayer !== null} onClose={() => setActiveLinkForPlayer(null)} link={activeLinkForPlayer}
         onSavePosition={(sec) => {
           if (activeLinkForPlayer && taskId) store.setWatchedTill(activeLinkForPlayer.id, taskId, sec);
           else if (activeLinkForPlayer && onSetPendingWatchedTill) onSetPendingWatchedTill(activeLinkForPlayer.id, sec);
@@ -158,8 +160,7 @@ export function YouTubeSection({
         }}
       />
       <WatchedTillSheet
-        visible={activeLinkForTime !== null}
-        onClose={() => setActiveLinkForTime(null)}
+        visible={activeLinkForTime !== null} onClose={() => setActiveLinkForTime(null)}
         currentSeconds={activeLinkForTime?.watchedTillSeconds}
         onSave={(sec) => {
           if (activeLinkForTime && taskId) store.setWatchedTill(activeLinkForTime.id, taskId, sec);
@@ -167,8 +168,7 @@ export function YouTubeSection({
         }}
       />
       <NoteSheet
-        visible={activeLinkForNote !== null}
-        onClose={() => setActiveLinkForNote(null)}
+        visible={activeLinkForNote !== null} onClose={() => setActiveLinkForNote(null)}
         currentNote={activeLinkForNote?.note}
         onSave={(note) => {
           if (activeLinkForNote && taskId) store.setNote(activeLinkForNote.id, taskId, note);

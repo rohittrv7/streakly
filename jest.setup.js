@@ -56,3 +56,38 @@ jest.mock("expo-router", () => ({
   useLocalSearchParams: () => ({}),
   Link: "Link",
 }));
+
+jest.mock("expo-audio", () => {
+  const mockPlayer = {
+    play: jest.fn(),
+    pause: jest.fn(),
+    release: jest.fn(),
+    loop: false,
+    volume: 1,
+    playing: false,
+    currentTime: 0,
+    duration: 5,
+    addListener: jest.fn(() => ({ remove: jest.fn() })),
+  };
+  return {
+    createAudioPlayer: jest.fn(() => mockPlayer),
+    useAudioPlayer: jest.fn(() => mockPlayer),
+    setIsAudioActiveAsync: jest.fn(),
+    setAudioModeAsync: jest.fn(),
+  };
+});
+
+jest.mock("expo-intent-launcher", () => ({
+  startActivityAsync: jest.fn(),
+  ActivityAction: {},
+}));
+
+jest.mock("expo-secure-store", () => {
+  const store = new Map();
+  return {
+    getItemAsync: jest.fn(async (key) => store.get(key) || null),
+    setItemAsync: jest.fn(async (key, val) => store.set(key, val)),
+    deleteItemAsync: jest.fn(async (key) => store.delete(key)),
+    _clear: () => store.clear(),
+  };
+});

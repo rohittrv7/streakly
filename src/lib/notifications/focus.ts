@@ -1,92 +1,158 @@
 import { Platform } from "react-native";
 import type { FocusMode } from "@/features/focus/timer";
-import { ensureNotificationChannels, NOTIFICATION_CHANNELS } from "./channels";
+import { ensureNotificationChannels, getFocusChannelId } from "./channels";
 import { getNotifications } from "./native";
 import { getPermissionStatus, requestNotificationPermission } from "./permissions";
+import { loadNotificationSettings } from "./settings";
+import type { FocusEndSound } from "./types";
 
-let activeFocusNotificationId: string | null = null;
+export interface PlanFocusEndInput {
+  endAtMs: number;
+  mode: FocusMode;
+  focusEndSound?: FocusEndSound;
+  focusRepeatReminders?: boolean;
+}
+
+export interface PlannedFocusNotification {
+  id: string;
+  triggerSeconds: number;
+  channelId: string;
+  sound: string | null;
+  title: string;
+  body: string;
+}
+
+export const FOCUS_NOTIFICATION_IDS = {
+  end: "focus:end",
+  repeat1: "focus:repeat:1",
+  repeat3: "focus:repeat:3",
+} as const;
+
+export function planFocusEndNotifications(
+  input: PlanFocusEndInput,
+  nowMs: number = Date.now()
+): PlannedFocusNotification[] {
+  const {
+    endAtMs,
+    mode,
+    focusEndSound = "alarm",
+    focusRepeatReminders = true,
+  } = input;
+
+  const seconds = Math.max(1, Math.round((endAtMs - nowMs) / 1000));
+  const channelId = getFocusChannelId(focusEndSound);
+  const sound =
+    focusEndSound === "alarm"
+      ? "focus_chime.wav"
+      : focusEndSound === "notification"
+      ? "default"
+      : null;
+
+  const isFocus = mode === "focus";
+  const mainTitle = isFocus ? "Focus session complete" : "Break over. Ready to focus?";
+  const mainBody = isFocus ? "Focus done. Take a quick break." : "Break finished. Ready to get back into focus?";
+
+  const list: PlannedFocusNotification[] = [
+    {
+      id: FOCUS_NOTIFICATION_IDS.end,
+      triggerSeconds: seconds,
+      channelId,
+      sound,
+      title: mainTitle,
+      body: mainBody,
+    },
+  ];
+
+  if (focusRepeatReminders) {
+    list.push({
+      id: FOCUS_NOTIFICATION_IDS.repeat1,
+      triggerSeconds: seconds + 60,
+      channelId,
+      sound,
+      title: mainTitle,
+      body: isFocus ? "Your session finished 1 minute ago" : "Your break finished 1 minute ago",
+    });
+    list.push({
+      id: FOCUS_NOTIFICATION_IDS.repeat3,
+      triggerSeconds: seconds + 180,
+      channelId,
+      sound,
+      title: mainTitle,
+      body: isFocus ? "Your session finished 3 minutes ago" : "Your break finished 3 minutes ago",
+    });
+  }
+
+  return list;
+}
 
 export async function scheduleSessionEnd(
   endAtMs: number,
-  mode: FocusMode
-): Promise<string | null> {
+  mode: FocusMode,
+  soundOverride?: FocusEndSound,
+  repeatOverride?: boolean
+): Promise<string[] | null> {
   if (Platform.OS === "web") return null;
-
   const Notifications = getNotifications();
   if (!Notifications) return null;
 
   try {
     await cancelSessionEnd();
 
-    // Ensure permission - request if undetermined
     const perm = await getPermissionStatus();
     let hasPerm = perm.status === "granted";
     if (perm.status === "undetermined") {
       hasPerm = await requestNotificationPermission();
     }
-    if (!hasPerm) {
-      if (__DEV__) {
-        console.log("[notifications/focus] Permission not granted, skipping focus notification");
-      }
-      return null;
-    }
+    if (!hasPerm) return null;
 
-    // Await channel creation
     await ensureNotificationChannels();
 
-    const seconds = Math.max(1, Math.round((endAtMs - Date.now()) / 1000));
-    const isFocus = mode === "focus";
-    const title = isFocus ? "Focus session complete" : "Break finished";
-    const body = isFocus ? "Focus done. Take 5." : "Break over. Back to it.";
-    const notifId = `focus:${Date.now()}`;
-    const channelId = NOTIFICATION_CHANNELS.focus;
-
-    if (__DEV__) {
-      console.log(`[notifications/focus] Scheduling focus notification in ${seconds}s with channel ${channelId}`);
-    }
-
-    const id = await Notifications.scheduleNotificationAsync({
-      identifier: notifId,
-      content: {
-        title,
-        body,
-        sound: "default",
-        priority: Notifications.AndroidNotificationPriority?.MAX ?? 5,
-        data: { channelId, target: { type: "focus" } },
-      },
-      trigger: {
-        type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
-        seconds,
-        channelId,
-      },
+    const settings = await loadNotificationSettings();
+    const planned = planFocusEndNotifications({
+      endAtMs,
+      mode,
+      focusEndSound: soundOverride ?? settings.focusEndSound,
+      focusRepeatReminders: repeatOverride ?? settings.focusRepeatReminders,
     });
 
-    activeFocusNotificationId = id || notifId;
-    if (__DEV__) {
-      console.log(`[notifications/focus] Successfully scheduled focus notification id: ${activeFocusNotificationId}`);
+    const scheduledIds: string[] = [];
+    for (const item of planned) {
+      const id = await Notifications.scheduleNotificationAsync({
+        identifier: item.id,
+        content: {
+          title: item.title,
+          body: item.body,
+          sound: item.sound ?? undefined,
+          priority: Notifications.AndroidNotificationPriority?.MAX ?? 5,
+          data: { channelId: item.channelId, target: { type: "focus" } },
+        },
+        trigger: {
+          type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
+          seconds: item.triggerSeconds,
+          channelId: item.channelId,
+        },
+      });
+      scheduledIds.push(id || item.id);
     }
-    return activeFocusNotificationId;
+
+    return scheduledIds;
   } catch (err) {
-    console.error("[notifications/focus] Failed to schedule focus notification:", err);
+    console.error("[notifications/focus] Failed to schedule focus notifications:", err);
     return null;
   }
 }
 
-export async function cancelSessionEnd(notificationId?: string | null): Promise<void> {
+export async function cancelSessionEnd(): Promise<void> {
   if (Platform.OS === "web") return;
-
   const Notifications = getNotifications();
   if (!Notifications) return;
 
   try {
-    const idToCancel = notificationId || activeFocusNotificationId;
-    if (idToCancel) {
-      await Notifications.cancelScheduledNotificationAsync(idToCancel).catch(() => {});
-      if (idToCancel === activeFocusNotificationId) {
-        activeFocusNotificationId = null;
-      }
-    }
+    const ids = [FOCUS_NOTIFICATION_IDS.end, FOCUS_NOTIFICATION_IDS.repeat1, FOCUS_NOTIFICATION_IDS.repeat3];
+    await Promise.all(
+      ids.map((id) => Notifications.cancelScheduledNotificationAsync(id).catch(() => {}))
+    );
   } catch (err) {
-    console.error("[notifications/focus] Failed to cancel focus notification:", err);
+    console.error("[notifications/focus] Failed to cancel focus notifications:", err);
   }
 }

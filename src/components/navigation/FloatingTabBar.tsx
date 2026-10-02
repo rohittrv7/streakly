@@ -100,20 +100,21 @@ export function FloatingTabBar({ state, navigation }: BottomTabBarProps) {
         left: 0,
         right: 0,
         alignItems: "center",
+        paddingHorizontal: 16,
       }}
       pointerEvents="box-none"
     >
       <View
         style={{ height: FLOATING_TAB_BAR_HEIGHT }}
-        className="w-full max-w-[420px] flex-row items-center justify-between px-2 bg-elevated border border-border rounded-pill relative overflow-hidden"
+        className="w-full max-w-[380px] flex-row items-center justify-between px-3 bg-elevated border border-border rounded-pill relative overflow-hidden shadow-lg"
       >
         <Animated.View
           style={[
             animatedIndicatorStyle,
             {
               position: "absolute",
-              top: 5,
-              bottom: 5,
+              top: 6,
+              bottom: 6,
               borderRadius: 9999,
               backgroundColor: accent.softBackground,
               borderWidth: 1,

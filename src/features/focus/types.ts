@@ -29,6 +29,13 @@ export function mapFocusSessionRow(row: FocusSessionRow): FocusSession {
   };
 }
 
+export interface CompletionOverlayState {
+  visible: boolean;
+  withSound: boolean;
+  completedMode: FocusMode;
+  linkedTaskId?: string | null;
+}
+
 export interface FocusStoreState {
   timer: TimerState;
   settings: FocusSettings;
@@ -38,6 +45,7 @@ export interface FocusStoreState {
   loading: boolean;
   finishedWhileAway: boolean;
   showPrePermissionSheet: boolean;
+  completionOverlay: CompletionOverlayState | null;
 
   init: () => Promise<void>;
   loadToday: () => Promise<void>;
@@ -55,4 +63,6 @@ export interface FocusStoreState {
   updateSettings: (newSettings: Partial<FocusSettings>) => Promise<void>;
   dismissFinishedWhileAway: () => void;
   setShowPrePermissionSheet: (show: boolean) => void;
+  showCompletionOverlay: (opts: { withSound: boolean; completedMode: FocusMode; linkedTaskId?: string | null }) => void;
+  hideCompletionOverlay: () => void;
 }

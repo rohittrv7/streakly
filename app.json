@@ -14,6 +14,9 @@
     "android": {
       "package": "com.yourname.streakly",
       "versionCode": 1,
+      "permissions": [
+        "SCHEDULE_EXACT_ALARM"
+      ],
       "adaptiveIcon": {
         "backgroundColor": "#0F0F10",
         "foregroundImage": "./assets/android-icon-foreground.png",
@@ -40,12 +43,17 @@
         "expo-notifications",
         {
           "icon": "./assets/notification-icon.png",
-          "color": "#D4FF3F"
+          "color": "#D4FF3F",
+          "sounds": [
+            "./assets/sounds/focus_chime.wav"
+          ]
         }
       ],
       "expo-font",
       "expo-asset",
-      "expo-sharing"
+      "expo-sharing",
+      "expo-audio",
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true

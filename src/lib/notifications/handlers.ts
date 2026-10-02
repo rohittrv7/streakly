@@ -5,6 +5,8 @@ import { habitsRepo } from "@/features/habits/repo";
 import { todayStr } from "@/core/utils/dates";
 import type { NotificationTarget } from "./types";
 import { getNotifications } from "./native";
+import { cancelSessionEnd } from "./focus";
+import { useFocusStore } from "@/features/focus/store";
 
 let handledResponseId: string | null = null;
 let handlerConfigured = false;
@@ -102,9 +104,17 @@ export async function handleNotificationTarget(target: NotificationTarget): Prom
         }
         break;
       }
-      case "focus":
+      case "focus": {
+        cancelSessionEnd().catch(() => {});
         router.push("/(tabs)/focus");
+        const focusStore = useFocusStore.getState();
+        focusStore.showCompletionOverlay({
+          withSound: false,
+          completedMode: focusStore.timer.mode,
+          linkedTaskId: focusStore.selectedTaskId,
+        });
         break;
+      }
     }
   } catch (err) {
     console.error("[notifications/handlers] Navigation error:", err);

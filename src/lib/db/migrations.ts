@@ -102,6 +102,13 @@ export const MIGRATION_2_SQL = `
   CREATE INDEX IF NOT EXISTS idx_freezes_habit_date ON habit_freezes(habit_id, date);
 `;
 
+export const MIGRATION_3_SQL = `
+  ALTER TABLE task_links ADD COLUMN position INTEGER;
+  ALTER TABLE task_links ADD COLUMN duration_seconds INTEGER;
+  ALTER TABLE task_links ADD COLUMN parent_link_id TEXT REFERENCES task_links(id) ON DELETE CASCADE;
+  CREATE INDEX IF NOT EXISTS idx_links_parent ON task_links(parent_link_id);
+`;
+
 export const migrations: Migration[] = [
   {
     version: 1,
@@ -115,6 +122,13 @@ export const migrations: Migration[] = [
     name: "habit_freezes",
     up: async (db: SQLiteDatabase) => {
       await db.execAsync(MIGRATION_2_SQL);
+    },
+  },
+  {
+    version: 3,
+    name: "task_links_hierarchy",
+    up: async (db: SQLiteDatabase) => {
+      await db.execAsync(MIGRATION_3_SQL);
     },
   },
 ];

@@ -13,3 +13,5 @@ export * from "./components/TodayFocusSessionsCard";
 export * from "./components/PreNotificationPermissionSheet";
 export * from "./components/FinishedWhileAwaySheet";
 export * from "./components/SessionCycleIndicator";
+export * from "./components/FocusCompletionOverlay";
+export * from "./components/FocusAlarmSettingsSection";
