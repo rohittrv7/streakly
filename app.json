@@ -9,13 +9,13 @@
     "userInterfaceStyle": "dark",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.yourname.streakly"
+      "bundleIdentifier": "com.rohit.streakly"
     },
     "android": {
-      "package": "com.yourname.streakly",
-      "versionCode": 1,
+      "package": "com.rohit.streakly",
+      "versionCode": 2,
       "permissions": [
-        "SCHEDULE_EXACT_ALARM",
+        "android.permission.SCHEDULE_EXACT_ALARM",
         "android.permission.RECORD_AUDIO",
         "android.permission.MODIFY_AUDIO_SETTINGS",
         "android.permission.FOREGROUND_SERVICE",
