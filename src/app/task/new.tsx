@@ -5,14 +5,14 @@ import { X, CalendarPlus } from "phosphor-react-native";
 import { Haptics } from "@/core/utils/haptics";
 import { Screen, Text, Button } from "@/components/ui";
 import { TaskForm } from "@/features/planner/components/TaskForm";
-import { usePlanner } from "@/features/planner";
-import { youTubeRepo, type TaskLink } from "@/features/youtube";
+import { usePlannerStore, createTaskWithLinksTransaction } from "@/features/planner";
+import { useYouTubeStore, type TaskLink } from "@/features/youtube";
 import { THEME_COLORS } from "@/lib/theme";
 
 export default function NewTaskScreen() {
   const router = useRouter();
   const { date } = useLocalSearchParams<{ date?: string }>();
-  const { addTask, addChecklistItem } = usePlanner();
+  const [errorMsg, setErrorMsg] = React.useState<string | null>(null);
 
   const handleCreate = async (data: {
     title: string;
@@ -24,43 +24,36 @@ export default function NewTaskScreen() {
     checklist?: any[];
     links?: TaskLink[];
   }) => {
-    const created = await addTask({
-      title: data.title,
-      notes: data.notes,
-      category: data.category,
-      date: data.date,
-      startTime: data.startTime,
-      endTime: data.endTime,
-    });
+    try {
+      setErrorMsg(null);
+      const res = await createTaskWithLinksTransaction({
+        title: data.title,
+        notes: data.notes,
+        category: data.category,
+        date: data.date,
+        startTime: data.startTime,
+        endTime: data.endTime,
+        checklist: data.checklist,
+        links: data.links,
+      });
 
-    if (data.checklist && data.checklist.length > 0) {
-      for (const item of data.checklist) {
-        if (item.text.trim()) {
-          await addChecklistItem(created.id, item.text.trim());
-        }
-      }
+      // Update in-memory state for immediate responsiveness
+      usePlannerStore.setState((s) => ({
+        tasks: [...s.tasks, res.task],
+        checklists: { ...s.checklists, [res.task.id]: res.checklist },
+      }));
+
+      // Refresh youtube store immediately
+      await useYouTubeStore.getState().loadForTask(res.task.id);
+
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+      router.back();
+    } catch (err) {
+      console.error("Failed to create task with links:", err);
+      const msg = err instanceof Error ? err.message : "Failed to create task";
+      setErrorMsg(msg);
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error).catch(() => {});
     }
-
-    if (data.links && data.links.length > 0) {
-      for (const link of data.links) {
-        await youTubeRepo.addLink({
-          taskId: created.id,
-          url: link.url,
-          kind: link.kind,
-          externalId: link.externalId,
-          title: link.title,
-          thumbnailUrl: link.thumbnailUrl,
-          watched: link.watched,
-          watchedTillSeconds: link.watchedTillSeconds,
-          note: link.note,
-          playlistTotal: link.playlistTotal,
-          playlistDone: link.playlistDone,
-        });
-      }
-    }
-
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
-    router.back();
   };
 
   return (
@@ -82,6 +75,12 @@ export default function NewTaskScreen() {
           accessibilityLabel="Close"
         />
       </View>
+
+      {errorMsg && (
+        <View className="p-3 mb-4 rounded-xl bg-coral/20 border border-coral/40">
+          <Text className="text-coral font-bold text-sm">{errorMsg}</Text>
+        </View>
+      )}
 
       <TaskForm
         initialDate={date}

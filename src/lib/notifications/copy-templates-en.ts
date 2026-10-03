@@ -13,13 +13,13 @@ export const COPY_TEMPLATES_EN = {
   friendly: {
     pre: {
       titles: (name: string, lead: number) => [
-        `${name} in ${lead}m`,
+        `${name} in ${lead === 1 ? "1m" : `${lead}m`}`,
         `Upcoming: ${name}`,
         `${name} starting soon`,
       ],
       bodies: (name: string, lead: number, streak?: number) => [
-        streak ? `In ${lead} mins. Your ${streak}-day streak is going strong.` : `Coming up in ${lead} minutes. Get ready!`,
-        streak ? `Just ${lead} minutes away. Protect your ${streak}-day streak.` : `Get ready for ${name} in ${lead} minutes.`,
+        streak ? `In ${lead === 1 ? "1 min" : `${lead} mins`}. Your ${streak}-day streak is going strong.` : `Coming up in ${lead === 1 ? "1 minute" : `${lead} minutes`}. Get ready!`,
+        streak ? `Just ${lead === 1 ? "1 minute" : `${lead} minutes`} away. Protect your ${streak}-day streak.` : `Get ready for ${name} in ${lead === 1 ? "1 minute" : `${lead} minutes`}.`,
         streak ? `Almost time for ${name}. Keep that ${streak}-day momentum.` : `Time to wrap up and focus on ${name} soon.`,
       ],
     },
@@ -63,13 +63,13 @@ export const COPY_TEMPLATES_EN = {
   strict: {
     pre: {
       titles: (name: string, lead: number) => [
-        `${name} in ${lead}m`,
+        `${name} in ${lead === 1 ? "1m" : `${lead}m`}`,
         `Get ready: ${name}`,
         `Upcoming: ${name}`,
       ],
       bodies: (name: string, lead: number, streak?: number) => [
-        streak ? `Starts in ${lead} minutes. Do not risk your ${streak}-day streak.` : `Starts in ${lead} minutes. No distractions.`,
-        streak ? `${lead} minutes until ${name}. Plan ahead to keep your streak.` : `Be ready to start ${name} on time in ${lead} mins.`,
+        streak ? `Starts in ${lead === 1 ? "1 minute" : `${lead} minutes`}. Do not risk your ${streak}-day streak.` : `Starts in ${lead === 1 ? "1 minute" : `${lead} minutes`}. No distractions.`,
+        streak ? `${lead === 1 ? "1 minute" : `${lead} minutes`} until ${name}. Plan ahead to keep your streak.` : `Be ready to start ${name} on time in ${lead === 1 ? "1 min" : `${lead} mins`}.`,
         streak ? `Almost time. Consistency built your ${streak}-day streak.` : `Get set for ${name}. Stay on schedule.`,
       ],
     },

@@ -3,6 +3,7 @@ import { View, Pressable } from "react-native";
 import { CaretLeft, CaretRight, CalendarPlus, Calendar } from "phosphor-react-native";
 import { Text, Button } from "@/components/ui";
 import { THEME_COLORS } from "@/lib/theme";
+import { useT } from "@/core/i18n";
 
 export interface PlannerHeaderProps {
   monthLabel: string;
@@ -21,6 +22,7 @@ export function PlannerHeader({
   onJumpToday,
   onPlanMonth,
 }: PlannerHeaderProps) {
+  const { t } = useT();
   return (
     <View className="flex-row items-center justify-between pt-4 pb-3">
       <View className="flex-row items-center gap-1.5">
@@ -43,12 +45,12 @@ export function PlannerHeader({
           <CaretRight size={18} color={THEME_COLORS.text.primary} />
         </Pressable>
         {showTodayButton && (
-          <Button variant="ghost" size="sm" title="Today" onPress={onJumpToday} className="px-2" />
+          <Button variant="ghost" size="sm" title={t("common.today")} onPress={onJumpToday} className="px-2" />
         )}
         <Button
           variant="secondary"
           size="sm"
-          title="Plan"
+          title={t("planner.planMonth")}
           icon={<CalendarPlus size={15} color={THEME_COLORS.text.primary} weight="bold" />}
           onPress={onPlanMonth}
         />

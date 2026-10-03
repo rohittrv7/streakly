@@ -4,6 +4,7 @@ import { Timer, GearSix } from "phosphor-react-native";
 import { Screen, Text, Stagger, Skeleton } from "@/components/ui";
 import { THEME_COLORS } from "@/lib/theme";
 import { plannerRepo } from "@/features/planner/repo";
+import { useT } from "@/core/i18n";
 import {
   useFocusStore,
   useFocusTimer,
@@ -20,6 +21,7 @@ import {
 } from "@/features/focus";
 
 export default function FocusScreen() {
+  const { t } = useT();
   const [settingsVisible, setSettingsVisible] = useState(false);
 
   const init = useFocusStore((s) => s.init);
@@ -78,9 +80,9 @@ export default function FocusScreen() {
           <View>
             <View className="flex-row items-center gap-1.5 mb-1">
               <Timer size={14} color={THEME_COLORS.primary} weight="fill" />
-              <Text variant="label">FOCUS</Text>
+              <Text variant="label">{t("tabs.focus").toUpperCase()}</Text>
             </View>
-            <Text variant="display">Deep Work</Text>
+            <Text variant="display">{t("focus.deepWork")}</Text>
           </View>
 
           <Pressable
@@ -88,7 +90,7 @@ export default function FocusScreen() {
             hitSlop={8}
             className="w-11 h-11 rounded-full bg-elevated border border-border items-center justify-center active:opacity-70"
             accessibilityRole="button"
-            accessibilityLabel="Timer settings"
+            accessibilityLabel={t("focus.settings")}
           >
             <GearSix size={20} color={THEME_COLORS.text.secondary} weight="bold" />
           </Pressable>

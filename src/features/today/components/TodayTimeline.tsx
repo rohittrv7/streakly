@@ -9,6 +9,7 @@ import { getNextUnwatchedLink } from "@/features/youtube/utils";
 import { VideoOpenSheet } from "@/features/youtube/components/VideoOpenSheet";
 import { VideoPlayerSheet } from "@/features/youtube/components/VideoPlayerSheet";
 import type { TaskLink } from "@/features/youtube/types";
+import { useT } from "@/core/i18n";
 
 export interface TodayTimelineProps {
   sections: TimelineSection[];
@@ -24,6 +25,7 @@ export function TodayTimeline({
   onToggleTask,
 }: TodayTimelineProps) {
   const router = useRouter();
+  const { t } = useT();
   const [activeVideo, setActiveVideo] = useState<TaskLink | null>(null);
   const [playerVideo, setPlayerVideo] = useState<TaskLink | null>(null);
 
@@ -42,12 +44,22 @@ export function TodayTimeline({
 
   return (
     <View className="gap-5">
-      {sections.map((section) => (
-        <View key={section.id}>
-          {/* Section Header */}
-          <Text variant="label" className="mb-2 text-text-secondary tracking-wider">
-            {section.title.toUpperCase()}
-          </Text>
+      {sections.map((section) => {
+        const title =
+          section.id === "morning"
+            ? t("today.morning")
+            : section.id === "afternoon"
+            ? t("today.afternoon")
+            : section.id === "evening"
+            ? t("today.evening")
+            : t("today.anytime");
+
+        return (
+          <View key={section.id}>
+            {/* Section Header */}
+            <Text variant="label" className="mb-2 text-text-secondary tracking-wider">
+              {title.toUpperCase()}
+            </Text>
 
           {/* Section Items */}
           <View>
@@ -90,7 +102,8 @@ export function TodayTimeline({
             ))}
           </View>
         </View>
-      ))}
+      );
+      })}
 
       {/* Video Sheets */}
       <VideoOpenSheet

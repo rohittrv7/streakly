@@ -10,9 +10,11 @@ import {
   TodayTimeline,
 } from "@/features/today";
 import { THEME_COLORS } from "@/lib/theme";
+import { useT } from "@/core/i18n";
 
 export default function TodayScreen() {
   const router = useRouter();
+  const { t } = useT();
   const [refreshing, setRefreshing] = useState(false);
 
   const {
@@ -91,9 +93,9 @@ export default function TodayScreen() {
           {allTimelineItems.length === 0 ? (
             <EmptyState
               illustration="empty-planner"
-              title="Nothing Scheduled"
-              description="No habits or tasks are scheduled for this day. Plan ahead or start building a new routine."
-              actionLabel="Create Habit"
+              title={t("today.nothingScheduled")}
+              description={t("today.nothingScheduledDesc")}
+              actionLabel={t("today.createHabitAction")}
               onAction={() => router.push("/habit/new")}
               className="mt-2"
             />
@@ -102,9 +104,9 @@ export default function TodayScreen() {
               {isAllDone && (
                 <EmptyState
                   illustration="all-done"
-                  title="All Done for Today!"
-                  description="You crushed all scheduled habits and tasks for this day. Amazing consistency!"
-                  actionLabel="View All Habits"
+                  title={t("today.allDoneTitle")}
+                  description={t("today.allDoneDesc")}
+                  actionLabel={t("today.viewAllHabits")}
                   onAction={() => router.push("/(tabs)/habits")}
                   className="mb-4"
                 />

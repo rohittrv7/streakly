@@ -42,6 +42,12 @@ export interface FocusTranslationSchema {
   startFocusAction: string;
   markTaskDoneAction: string;
   closeAction: string;
+  deepWork: string;
+  todaySessions: string;
+  totalFocusTime: string;
+  noSessionsToday: string;
+  cycles: string;
+  target: string;
 }
 
 export interface NotificationTranslationSchema {

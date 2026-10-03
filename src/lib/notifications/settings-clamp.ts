@@ -8,13 +8,13 @@ import type {
 
 export function clampHabitLeadMinutes(val: unknown): HabitLeadMinutes {
   const n = typeof val === "number" ? val : parseInt(String(val), 10);
-  if (n === 0 || n === 2 || n === 5 || n === 10 || n === 15) return n as HabitLeadMinutes;
+  if (n === 0 || n === 1 || n === 2 || n === 5 || n === 10 || n === 15) return n as HabitLeadMinutes;
   return 5;
 }
 
 export function clampTaskLeadMinutes(val: unknown): TaskLeadMinutes {
   const n = typeof val === "number" ? val : parseInt(String(val), 10);
-  if (n === 0 || n === 2 || n === 5 || n === 10 || n === 15 || n === 30) return n as TaskLeadMinutes;
+  if (n === 0 || n === 1 || n === 2 || n === 5 || n === 10 || n === 15 || n === 30) return n as TaskLeadMinutes;
   return 5;
 }
 

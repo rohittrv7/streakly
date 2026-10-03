@@ -20,7 +20,10 @@ import {
   type TimelineSection,
 } from "./utils";
 
+import { useT } from "@/core/i18n";
+
 export function useTodayData(initialDate: string = todayStr()) {
+  const { t, language } = useT();
   const [selectedDate, setSelectedDate] = useState(initialDate);
   const [currentToday, setCurrentToday] = useState(todayStr());
   const [focusMinutes, setFocusMinutes] = useState(0);
@@ -138,12 +141,12 @@ export function useTodayData(initialDate: string = todayStr()) {
   }, [loadHabits, loadPlannerMonth]);
 
   const greeting = useMemo(() => {
-    return getGreeting(new Date().getHours());
-  }, []);
+    return getGreeting(new Date().getHours(), t);
+  }, [t, language]);
 
   const dateLabel = useMemo(() => {
-    return formatDayLabel(selectedDate, currentToday);
-  }, [selectedDate, currentToday]);
+    return formatDayLabel(selectedDate, currentToday, t);
+  }, [selectedDate, currentToday, t, language]);
 
   return {
     selectedDate,

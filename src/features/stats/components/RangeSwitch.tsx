@@ -9,18 +9,21 @@ import Animated, {
 } from "react-native-reanimated";
 import type { StatsRange } from "../types";
 
+import { useT, type TranslationKey } from "@/core/i18n";
+
 interface RangeSwitchProps {
   value: StatsRange;
   onChange: (range: StatsRange) => void;
 }
 
-const RANGES: { key: StatsRange; label: string }[] = [
-  { key: "7d", label: "7 Days" },
-  { key: "30d", label: "30 Days" },
-  { key: "90d", label: "90 Days" },
+const RANGES: { key: StatsRange; labelKey: TranslationKey }[] = [
+  { key: "7d", labelKey: "stats.range7d" },
+  { key: "30d", labelKey: "stats.range30d" },
+  { key: "90d", labelKey: "stats.rangeAll" },
 ];
 
 export function RangeSwitch({ value, onChange }: RangeSwitchProps) {
+  const { t } = useT();
   const [containerWidth, setContainerWidth] = React.useState(0);
   const selectedIndex = RANGES.findIndex((r) => r.key === value);
   const tabWidth = containerWidth > 0 ? (containerWidth - 8) / RANGES.length : 0;
@@ -77,7 +80,7 @@ export function RangeSwitch({ value, onChange }: RangeSwitchProps) {
                 isSelected ? "text-background font-bold" : "text-muted"
               }`}
             >
-              {range.label}
+              {t(range.labelKey)}
             </Text>
           </Pressable>
         );

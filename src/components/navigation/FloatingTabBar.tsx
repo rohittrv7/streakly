@@ -18,6 +18,7 @@ import { Text } from "@/components/ui";
 import { THEME_COLORS } from "@/lib/theme";
 import { useAccent } from "@/lib/theme/store";
 import { TAB_BAR_MARGIN_BOTTOM, FLOATING_TAB_BAR_HEIGHT } from "@/components/ui/Screen";
+import { useT, type TranslationKey } from "@/core/i18n";
 
 export interface TabBarRoute {
   key: string;
@@ -48,17 +49,18 @@ export function computeIndicatorLayout(
   return (!layout || layout.width <= 0) ? { x: 0, width: 0 } : { x: layout.x, width: layout.width };
 }
 
-const TAB_CONFIGS: Record<string, { name: string; label: string; Icon: any }> = {
-  index: { name: "index", label: "Today", Icon: House },
-  habits: { name: "habits", label: "Habits", Icon: Target },
-  planner: { name: "planner", label: "Planner", Icon: CalendarBlank },
-  focus: { name: "focus", label: "Focus", Icon: Timer },
-  stats: { name: "stats", label: "Stats", Icon: ChartBar },
+const TAB_CONFIGS: Record<string, { name: string; labelKey: TranslationKey; Icon: any }> = {
+  index: { name: "index", labelKey: "tabs.today", Icon: House },
+  habits: { name: "habits", labelKey: "tabs.habits", Icon: Target },
+  planner: { name: "planner", labelKey: "tabs.planner", Icon: CalendarBlank },
+  focus: { name: "focus", labelKey: "tabs.focus", Icon: Timer },
+  stats: { name: "stats", labelKey: "tabs.stats", Icon: ChartBar },
 };
 
 export function FloatingTabBar({ state, navigation }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
   const { accent } = useAccent();
+  const { t } = useT();
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
   const [layouts, setLayouts] = useState<Record<number, TabItemLayout>>({});
 
@@ -125,9 +127,9 @@ export function FloatingTabBar({ state, navigation }: BottomTabBarProps) {
 
         {state.routes.map((route, index) => {
           const isFocused = state.index === index;
-          const config = TAB_CONFIGS[route.name] || { name: route.name, label: route.name, Icon: House };
-          const Icon = config.Icon;
-          const label = config.label;
+          const config = TAB_CONFIGS[route.name];
+          const Icon = config ? config.Icon : House;
+          const label = config ? t(config.labelKey) : route.name;
 
           const onPress = () => {
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);

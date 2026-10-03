@@ -27,17 +27,24 @@ export interface TimelineSection {
   items: TimelineItem[];
 }
 
-export function getGreeting(hour: number): string {
-  if (hour >= 5 && hour < 12) return "Good morning";
-  if (hour >= 12 && hour < 17) return "Good afternoon";
-  if (hour >= 17 && hour < 22) return "Good evening";
-  return "Late night hustle";
+export function getGreeting(
+  hour: number,
+  t?: (key: any) => string
+): string {
+  if (hour >= 5 && hour < 12) return t ? t("today.greetingMorning") : "Good morning";
+  if (hour >= 12 && hour < 17) return t ? t("today.greetingAfternoon") : "Good afternoon";
+  if (hour >= 17 && hour < 22) return t ? t("today.greetingEvening") : "Good evening";
+  return t ? t("today.greetingNight") : "Late night hustle";
 }
 
-export function formatDayLabel(date: string, today: string = todayStr()): string {
-  if (date === today) return "Today";
-  if (date === addDays(today, -1)) return "Yesterday";
-  if (date === addDays(today, 1)) return "Tomorrow";
+export function formatDayLabel(
+  date: string,
+  today: string = todayStr(),
+  t?: (key: any) => string
+): string {
+  if (date === today) return t ? t("common.today") : "Today";
+  if (date === addDays(today, -1)) return t ? t("common.yesterday") : "Yesterday";
+  if (date === addDays(today, 1)) return t ? t("common.tomorrow") : "Tomorrow";
   try {
     const d = parseISO(`${date}T12:00:00`);
     return format(d, "EEE, d MMM");

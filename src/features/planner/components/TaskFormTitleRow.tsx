@@ -26,7 +26,7 @@ export function TaskFormTitleRow({
   return (
     <View>
       <Input
-        label="TITLE *"
+        label={`${t("planner.taskTitle").toUpperCase()} *`}
         placeholder="e.g. Solve 2 LeetCode problems"
         value={title}
         onChangeText={onChangeText}

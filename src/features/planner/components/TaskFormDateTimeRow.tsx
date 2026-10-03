@@ -3,6 +3,7 @@ import { View, Pressable } from "react-native";
 import { Calendar, Clock } from "phosphor-react-native";
 import { Text } from "@/components/ui";
 import { THEME_COLORS } from "@/lib/theme";
+import { useT } from "@/core/i18n";
 
 export interface TaskFormDateTimeRowProps {
   date: string;
@@ -23,6 +24,8 @@ export function TaskFormDateTimeRow({
   onPressEndTime,
   timesError,
 }: TaskFormDateTimeRowProps) {
+  const { t } = useT();
+
   return (
     <View className="gap-1.5">
       <View className="flex-row gap-3">
@@ -30,7 +33,7 @@ export function TaskFormDateTimeRow({
           onPress={onPressDate}
           className="flex-1 bg-surface p-3 rounded-card border border-border"
         >
-          <Text variant="label" className="mb-1">DATE</Text>
+          <Text variant="label" className="mb-1">{t("planner.date").toUpperCase()}</Text>
           <View className="flex-row items-center gap-2">
             <Calendar size={16} color={THEME_COLORS.primary} />
             <Text variant="body" className="font-semibold text-sm">{date}</Text>
@@ -41,10 +44,10 @@ export function TaskFormDateTimeRow({
           onPress={onPressStartTime}
           className="flex-1 bg-surface p-3 rounded-card border border-border"
         >
-          <Text variant="label" className="mb-1">START TIME</Text>
+          <Text variant="label" className="mb-1">{t("planner.startTime").toUpperCase()}</Text>
           <View className="flex-row items-center gap-2">
             <Clock size={16} color={THEME_COLORS.text.muted} />
-            <Text variant="body" className="font-semibold text-sm">{startTime || "Anytime"}</Text>
+            <Text variant="body" className="font-semibold text-sm">{startTime || t("today.anytime")}</Text>
           </View>
         </Pressable>
 
@@ -52,10 +55,10 @@ export function TaskFormDateTimeRow({
           onPress={onPressEndTime}
           className="flex-1 bg-surface p-3 rounded-card border border-border"
         >
-          <Text variant="label" className="mb-1">END TIME</Text>
+          <Text variant="label" className="mb-1">{t("planner.duration").toUpperCase()}</Text>
           <View className="flex-row items-center gap-2">
             <Clock size={16} color={THEME_COLORS.text.muted} />
-            <Text variant="body" className="font-semibold text-sm">{endTime || "None"}</Text>
+            <Text variant="body" className="font-semibold text-sm">{endTime || "--:--"}</Text>
           </View>
         </Pressable>
       </View>

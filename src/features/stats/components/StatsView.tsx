@@ -15,6 +15,7 @@ import { TasksStatsCard } from "./TasksStatsCard";
 import { HabitBreakdownList } from "./HabitBreakdownList";
 import { InsightChips } from "./InsightChips";
 import type { StatsAggregatedData, HeatmapCell } from "../types";
+import { useT } from "@/core/i18n";
 
 interface StatsViewProps {
   data: StatsAggregatedData;
@@ -22,6 +23,7 @@ interface StatsViewProps {
 }
 
 export function StatsView({ data, highlightToday }: StatsViewProps) {
+  const { t } = useT();
   const [selectedCell, setSelectedCell] = useState<HeatmapCell | null>(null);
   const shouldReduceMotion = useReducedMotion();
 
@@ -51,16 +53,16 @@ export function StatsView({ data, highlightToday }: StatsViewProps) {
       {/* Row of two StatCards: Current top streak and best streak ever */}
       <View className="flex-row gap-3">
         <StatCard
-          label="Top Streak"
+          label={t("habits.currentStreak")}
           value={streakSummary.topStreak}
           suffix="d"
-          subtext={streakSummary.topStreakHabit?.name || "No active streak"}
+          subtext={streakSummary.topStreakHabit?.name || t("today.noHabitsActive")}
         />
         <StatCard
-          label="Best Streak"
+          label={t("habits.bestStreak")}
           value={streakSummary.bestStreakEver}
           suffix="d"
-          subtext="All-time high"
+          subtext={t("habits.bestStreak")}
         />
       </View>
 
@@ -68,7 +70,7 @@ export function StatsView({ data, highlightToday }: StatsViewProps) {
       {consistencyBuckets.length > 0 && (
         <View className="bg-surface border border-white/5 rounded-2xl p-4">
           <Text className="text-muted text-xs font-semibold uppercase tracking-wider mb-2">
-            Consistency Trend
+            {t("stats.overview")}
           </Text>
           <LineChart data={consistencyBuckets} height={150} />
         </View>
@@ -79,9 +81,8 @@ export function StatsView({ data, highlightToday }: StatsViewProps) {
         <View className="bg-surface border border-white/5 rounded-2xl p-4">
           <View className="flex-row items-center justify-between mb-3">
             <Text className="text-muted text-xs font-semibold uppercase tracking-wider">
-              Activity Heatmap
+              {t("stats.weeklyActivity")}
             </Text>
-            <Text className="text-muted text-[11px]">Last 12-13 Weeks</Text>
           </View>
           <Heatmap
             cells={heatmapCells}
@@ -101,7 +102,7 @@ export function StatsView({ data, highlightToday }: StatsViewProps) {
       {habitBreakdown.length > 0 && (
         <View className="bg-surface border border-white/5 rounded-2xl p-4">
           <Text className="text-muted text-xs font-semibold uppercase tracking-wider mb-2">
-            Habit Breakdown
+            {t("stats.habitsPerformance")}
           </Text>
           <HabitBreakdownList items={habitBreakdown} />
         </View>

@@ -4,6 +4,7 @@ import { Sheet, Button, Text } from "@/components/ui";
 import { MonthCalendar } from "./MonthCalendar";
 import { todayStr, addDays } from "@/core/utils/dates";
 import { parseISO } from "date-fns";
+import { useT } from "@/core/i18n";
 
 export interface RescheduleSheetProps {
   visible: boolean;
@@ -18,6 +19,7 @@ export function RescheduleSheet({
   onReschedule,
   taskTitle,
 }: RescheduleSheetProps) {
+  const { t } = useT();
   const today = todayStr();
   const tomorrow = addDays(today, 1);
   const [showCalendar, setShowCalendar] = useState(false);
@@ -32,23 +34,23 @@ export function RescheduleSheet({
   };
 
   return (
-    <Sheet visible={visible} onClose={onClose} title="Reschedule Task">
+    <Sheet visible={visible} onClose={onClose} title={t("planner.rescheduleTask")}>
       <View className="gap-3 pb-2">
         <Text variant="caption" className="text-text-secondary" numberOfLines={1}>
-          Select a new date for "{taskTitle}":
+          {taskTitle}
         </Text>
 
         {/* Quick-choice options */}
         <View className="flex-row gap-2">
           <Button
             variant="primary"
-            title="Today"
+            title={t("common.today")}
             className="flex-1"
             onPress={() => handlePick(today)}
           />
           <Button
             variant="secondary"
-            title="Tomorrow"
+            title={t("common.tomorrow")}
             className="flex-1"
             onPress={() => handlePick(tomorrow)}
           />
@@ -56,7 +58,7 @@ export function RescheduleSheet({
 
         <Button
           variant="ghost"
-          title={showCalendar ? "Hide Calendar" : "Pick Custom Date..."}
+          title={showCalendar ? t("common.close") : t("planner.date")}
           onPress={() => setShowCalendar(!showCalendar)}
         />
 

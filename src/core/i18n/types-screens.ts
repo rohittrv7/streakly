@@ -1,0 +1,166 @@
+export interface TabsTranslationSchema {
+  today: string;
+  habits: string;
+  planner: string;
+  focus: string;
+  stats: string;
+}
+
+export interface TodayTranslationSchema {
+  title: string;
+  subtitle: string;
+  streakTitle: string;
+  allDone: string;
+  pendingTasks: string;
+  habitsLeft: string;
+  greetingMorning: string;
+  greetingAfternoon: string;
+  greetingEvening: string;
+  greetingNight: string;
+  noItems: string;
+  startDay: string;
+  topStreak: string;
+  noHabitsActive: string;
+  habitsCard: string;
+  tasksCard: string;
+  focusCard: string;
+  morning: string;
+  afternoon: string;
+  evening: string;
+  anytime: string;
+  nothingScheduled: string;
+  nothingScheduledDesc: string;
+  createHabitAction: string;
+  allDoneTitle: string;
+  allDoneDesc: string;
+  viewAllHabits: string;
+  dayProgressDone: string;
+}
+
+export interface HabitsTranslationSchema {
+  title: string;
+  activeHabitsHeader: string;
+  yourRoutines: string;
+  newHabit: string;
+  editHabit: string;
+  habitName: string;
+  frequency: string;
+  daily: string;
+  weekly: string;
+  category: string;
+  currentStreak: string;
+  bestStreak: string;
+  completions: string;
+  deleteConfirm: string;
+  daysCount: string;
+  noHabitsYet: string;
+  noHabitsDesc: string;
+  createFirstHabit: string;
+  everyDay: string;
+  timesAWeek: string;
+  notScheduled: string;
+  monFri: string;
+  weekends: string;
+  deleteHabit: string;
+  archiveHabit: string;
+  archiveConfirm: string;
+  restDay: string;
+}
+
+export interface PlannerTranslationSchema {
+  title: string;
+  newTask: string;
+  editTask: string;
+  taskTitle: string;
+  planMonth: string;
+  noTasks: string;
+  dueToday: string;
+  checklist: string;
+  youtubeLinks: string;
+  nextSevenDays: string;
+  nothingPlanned: string;
+  goToPlanner: string;
+  selectTask: string;
+  markAsDone: string;
+  markAsPending: string;
+  taskDetails: string;
+  missed: string;
+  done: string;
+  reschedule: string;
+  rescheduleTask: string;
+  deleteTask: string;
+  deleteConfirm: string;
+  duplicateTask: string;
+  planMyMonth: string;
+  step: string;
+  preview: string;
+  applyPlan: string;
+  repeatType: string;
+  selectDays: string;
+  timesPerWeek: string;
+  monthlyTarget: string;
+  checklistItems: string;
+  addChecklistItem: string;
+  startTime: string;
+  duration: string;
+  date: string;
+  saveTask: string;
+  createTask: string;
+}
+
+export interface StatsTranslationSchema {
+  title: string;
+  overview: string;
+  completionRate: string;
+  currentStreak: string;
+  focusTime: string;
+  tasksDone: string;
+  weeklyActivity: string;
+  range7d: string;
+  range30d: string;
+  rangeAll: string;
+  insights: string;
+  habitsPerformance: string;
+  dayDetail: string;
+  noStatsData: string;
+  noStatsDesc: string;
+  excellentConsistency: string;
+  keepItUp: string;
+  needMoreData: string;
+}
+
+export interface YouTubeTranslationSchema {
+  title: string;
+  addLink: string;
+  pasteUrl: string;
+  watch: string;
+  watched: string;
+  unwatch: string;
+  removeConfirm: string;
+  invalidUrl: string;
+  fetchingTitle: string;
+  titleTaken: string;
+  apiKey: string;
+  apiKeyHelp: string;
+  importVideos: string;
+  planAcrossDays: string;
+  resync: string;
+  resyncing: string;
+  importing: string;
+  errorNoKey: string;
+  errorInvalidKey: string;
+  errorQuota: string;
+  errorNotFound: string;
+  errorOffline: string;
+  errorTimeout: string;
+  errorUnknown: string;
+  watchInApp: string;
+  openInYouTube: string;
+  openVideo: string;
+  companionVideos: string;
+  videosCount: string;
+  watchedTill: string;
+  savePosition: string;
+  devPrintRows: string;
+}
+

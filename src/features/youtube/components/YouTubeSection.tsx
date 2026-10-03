@@ -12,6 +12,7 @@ import { VideoOpenSheet } from "./VideoOpenSheet";
 import { VideoPlayerSheet } from "./VideoPlayerSheet";
 import { WatchedTillSheet } from "./WatchedTillSheet";
 import { NoteSheet } from "./NoteSheet";
+import { useT } from "@/core/i18n";
 
 export interface YouTubeSectionProps {
   taskId?: string;
@@ -42,6 +43,7 @@ export function YouTubeSection({
   onRetryPendingMetadata,
   onMarkTaskDone,
 }: YouTubeSectionProps) {
+  const { t } = useT();
   const store = useYouTubeStore();
   const dbLinks = useTaskLinks(taskId);
   const dbProgress = useLinksProgress(taskId);
@@ -73,11 +75,11 @@ export function YouTubeSection({
   return (
     <View className="gap-3">
       <View className="flex-row items-center justify-between">
-        <Text variant="label">VIDEOS ({topLevelLinks.length})</Text>
+        <Text variant="label">{t("youtube.title").toUpperCase()} ({topLevelLinks.length})</Text>
         {progress.total > 0 && (
           <View className="bg-primary/20 px-2 py-0.5 rounded-pill border border-primary/40">
             <Text className="text-[10px] font-extrabold text-primary">
-              {progress.watched}/{progress.total} watched
+              {t("youtube.videosCount", { watched: progress.watched, total: progress.total })}
             </Text>
           </View>
         )}
@@ -140,13 +142,8 @@ export function YouTubeSection({
       )}
 
       <VideoOpenSheet
-        visible={activeLinkForOpen !== null}
-        onClose={() => setActiveLinkForOpen(null)}
-        link={activeLinkForOpen}
-        onWatchInApp={() => {
-          setActiveLinkForPlayer(activeLinkForOpen);
-          setActiveLinkForOpen(null);
-        }}
+        visible={activeLinkForOpen !== null} onClose={() => setActiveLinkForOpen(null)} link={activeLinkForOpen}
+        onWatchInApp={() => { setActiveLinkForPlayer(activeLinkForOpen); setActiveLinkForOpen(null); }}
       />
       <VideoPlayerSheet
         visible={activeLinkForPlayer !== null} onClose={() => setActiveLinkForPlayer(null)} link={activeLinkForPlayer}
@@ -175,21 +172,21 @@ export function YouTubeSection({
           else if (activeLinkForNote && onSetPendingNote) onSetPendingNote(activeLinkForNote.id, note);
         }}
       />
-      <Sheet visible={allWatchedSheetVisible} onClose={() => setAllWatchedSheetVisible(false)} title="All Videos Watched">
+      <Sheet visible={allWatchedSheetVisible} onClose={() => setAllWatchedSheetVisible(false)} title={t("youtube.watched")}>
         <View className="gap-4 pb-2">
           <Text variant="body" className="text-text-secondary">
-            You finished all companion videos for this task! Mark the entire task as done?
+            {t("planner.markAsDone")}?
           </Text>
           <View className="gap-2">
             <Button
               variant="primary"
-              title="Yes, Mark Task Done"
+              title={t("planner.markAsDone")}
               onPress={() => {
                 setAllWatchedSheetVisible(false);
                 if (onMarkTaskDone) onMarkTaskDone();
               }}
             />
-            <Button variant="secondary" title="Not Now" onPress={() => setAllWatchedSheetVisible(false)} />
+            <Button variant="secondary" title={t("common.cancel")} onPress={() => setAllWatchedSheetVisible(false)} />
           </View>
         </View>
       </Sheet>

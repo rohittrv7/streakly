@@ -20,6 +20,7 @@ import { configureReanimatedLogger } from "react-native-reanimated";
 import { THEME_COLORS, ACCENT_MAP, DEFAULT_ACCENT } from "@/lib/theme";
 import { useAccentStore } from "@/lib/theme/store";
 import { useSettingsStore } from "@/features/settings/store";
+import { useLanguageStore } from "@/core/i18n";
 import { useNotificationSync } from "@/lib/notifications";
 import { RootErrorBoundary } from "@/components/ui/RootErrorBoundary";
 
@@ -62,6 +63,7 @@ export default function RootLayout() {
   useEffect(() => {
     if (dbReady) {
       (async () => {
+        await useLanguageStore.getState().loadLanguage();
         await useSettingsStore.getState().loadSettings();
         await loadHabits();
         setSettingsLoaded(true);

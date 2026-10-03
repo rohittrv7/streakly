@@ -1,8 +1,11 @@
 import React from "react";
 import { Tabs } from "expo-router";
 import { FloatingTabBar } from "@/components/navigation/FloatingTabBar";
+import { useT } from "@/core/i18n";
 
 export default function TabsLayout() {
+  const { t } = useT();
+
   return (
     <Tabs
       tabBar={(props) => <FloatingTabBar {...props} />}
@@ -13,31 +16,31 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "Today",
+          title: t("tabs.today"),
         }}
       />
       <Tabs.Screen
         name="habits"
         options={{
-          title: "Habits",
+          title: t("tabs.habits"),
         }}
       />
       <Tabs.Screen
         name="planner"
         options={{
-          title: "Planner",
+          title: t("tabs.planner"),
         }}
       />
       <Tabs.Screen
         name="focus"
         options={{
-          title: "Focus",
+          title: t("tabs.focus"),
         }}
       />
       <Tabs.Screen
         name="stats"
         options={{
-          title: "Stats",
+          title: t("tabs.stats"),
         }}
       />
     </Tabs>

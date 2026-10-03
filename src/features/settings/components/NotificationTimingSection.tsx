@@ -18,8 +18,8 @@ interface Props {
 export function NotificationTimingSection({ settings, updateSettings }: Props) {
   const { t } = useTranslation();
 
-  const habitLeads: HabitLeadMinutes[] = [0, 2, 5, 10, 15];
-  const taskLeads: TaskLeadMinutes[] = [0, 2, 5, 10, 15, 30];
+  const habitLeads: HabitLeadMinutes[] = [0, 1, 2, 5, 10, 15];
+  const taskLeads: TaskLeadMinutes[] = [0, 1, 2, 5, 10, 15, 30];
   const overdueDelays: OverdueDelayMinutes[] = __DEV__
     ? [1, 30, 60, 120]
     : [30, 60, 120];

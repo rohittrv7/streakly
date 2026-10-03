@@ -11,6 +11,7 @@ import { runMigrations } from "./migrations";
 import { seedDatabase } from "./seed";
 import { THEME_COLORS } from "@/lib/theme";
 import { Screen, Text, Button } from "@/components/ui";
+import { useT } from "@/core/i18n";
 
 interface DbContextValue {
   isReady: boolean;
@@ -34,6 +35,7 @@ interface DbProviderProps {
 const INIT_TIMEOUT_MS = 10000;
 
 export function DbProvider({ children, onReady }: DbProviderProps) {
+  const { t } = useT();
   const [isReady, setIsReady] = useState(false);
   const [error, setError] = useState<Error | null>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -97,13 +99,13 @@ export function DbProvider({ children, onReady }: DbProviderProps) {
       <Screen className="items-center justify-center">
         <View className="items-center justify-center max-w-[340px] px-6">
           <Text variant="title" className="text-center mb-3">
-            Streakly is built for mobile
+            {t("common.mobileOnlyTitle")}
           </Text>
           <Text
             variant="body"
             className="text-text-secondary text-center leading-relaxed"
           >
-            Open it in Expo Go on your phone or an Android/iOS emulator.
+            {t("common.mobileOnlyDesc")}
           </Text>
         </View>
       </Screen>
@@ -116,16 +118,16 @@ export function DbProvider({ children, onReady }: DbProviderProps) {
       <Screen className="items-center justify-center px-6">
         <View className="items-center justify-center max-w-[340px] w-full">
           <Text variant="title" className="text-coral text-center mb-2">
-            Database Error
+            {t("common.dbError")}
           </Text>
           <Text
             variant="body"
             className="text-text-secondary text-center mb-6 leading-relaxed"
           >
-            {error.message || "Failed to initialize local SQLite database."}
+            {error.message || t("common.error")}
           </Text>
           <Button
-            title="Retry Initialization"
+            title={t("common.retryInit")}
             variant="primary"
             onPress={initDb}
             className="w-full"
@@ -145,7 +147,7 @@ export function DbProvider({ children, onReady }: DbProviderProps) {
             variant="caption"
             className="text-text-secondary mt-4 font-semibold tracking-wider text-center"
           >
-            Loading Streakly Data...
+            {t("common.dbLoading")}
           </Text>
         </View>
       </Screen>

@@ -5,8 +5,15 @@ import { X, CheckSquare } from "phosphor-react-native";
 import { Haptics } from "@/core/utils/haptics";
 import { Screen, Text, Button, Card } from "@/components/ui";
 import { TaskForm } from "@/features/planner/components/TaskForm";
-import { usePlanner, usePlannerTask, usePlannerChecklist } from "@/features/planner";
-import { youTubeRepo } from "@/features/youtube";
+import {
+  usePlanner,
+  usePlannerTask,
+  usePlannerChecklist,
+  usePlannerStore,
+  createTaskWithLinksTransaction,
+  updateTaskWithLinksTransaction,
+} from "@/features/planner";
+import { useTaskLinks, useYouTubeStore, type TaskLink } from "@/features/youtube";
 import { THEME_COLORS } from "@/lib/theme";
 
 export default function TaskDetailsModal() {
@@ -14,7 +21,8 @@ export default function TaskDetailsModal() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const task = usePlannerTask(id);
   const { items: checklistItems } = usePlannerChecklist(id);
-  const { updateTask, deleteTask, addTask, addChecklistItem } = usePlanner();
+  const existingLinks = useTaskLinks(id);
+  const { deleteTask } = usePlanner();
 
   if (!task) {
     return (
@@ -42,55 +50,76 @@ export default function TaskDetailsModal() {
     date: string;
     startTime?: string | null;
     endTime?: string | null;
+    checklist?: any[];
+    links?: TaskLink[];
   }) => {
-    await updateTask(task.id, {
-      title: data.title,
-      notes: data.notes,
-      category: data.category,
-      date: data.date,
-      startTime: data.startTime,
-      endTime: data.endTime,
-    });
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
-    router.back();
+    try {
+      const updated = await updateTaskWithLinksTransaction({
+        taskId: task.id,
+        title: data.title,
+        notes: data.notes,
+        category: data.category,
+        date: data.date,
+        startTime: data.startTime,
+        endTime: data.endTime,
+        checklist: checklistItems,
+        links: data.links,
+      });
+      usePlannerStore.setState((s) => ({
+        tasks: s.tasks.map((t) => (t.id === task.id ? updated : t)),
+      }));
+      await useYouTubeStore.getState().loadForTask(task.id);
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+      router.back();
+    } catch (err) {
+      console.error("Failed to update task:", err);
+    }
   };
 
   const handleDelete = async () => {
     await deleteTask(task.id);
+    useYouTubeStore.setState((s) => {
+      const next = { ...s.linksByTask };
+      delete next[task.id];
+      return { linksByTask: next };
+    });
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
     router.back();
   };
 
   const handleDuplicate = async () => {
-    const dup = await addTask({
-      title: `${task.title} (Copy)`,
-      notes: task.notes,
-      category: task.category,
-      date: task.date,
-      startTime: task.startTime,
-      endTime: task.endTime,
-    });
-    for (const item of checklistItems) {
-      await addChecklistItem(dup.id, item.text);
-    }
-    const existingLinks = await youTubeRepo.getLinksForTask(task.id);
-    for (const link of existingLinks) {
-      await youTubeRepo.addLink({
-        taskId: dup.id,
-        url: link.url,
-        kind: link.kind,
-        externalId: link.externalId,
-        title: link.title,
-        thumbnailUrl: link.thumbnailUrl,
-        watched: false,
-        watchedTillSeconds: null,
-        note: link.note,
-        playlistTotal: link.playlistTotal,
-        playlistDone: 0,
+    try {
+      const dup = await createTaskWithLinksTransaction({
+        title: `${task.title} (Copy)`,
+        notes: task.notes,
+        category: task.category,
+        date: task.date,
+        startTime: task.startTime,
+        endTime: task.endTime,
+        checklist: checklistItems.map((c) => ({ text: c.text })),
+        links: existingLinks.map((l) => ({
+          url: l.url,
+          kind: l.kind,
+          externalId: l.externalId,
+          title: l.title,
+          thumbnailUrl: l.thumbnailUrl,
+          watched: false,
+          watchedTillSeconds: null,
+          note: l.note,
+          playlistTotal: l.playlistTotal,
+          playlistDone: 0,
+        })),
       });
+      usePlannerStore.setState((s) => ({
+        tasks: [...s.tasks, dup.task],
+        checklists: { ...s.checklists, [dup.task.id]: dup.checklist },
+      }));
+      await useYouTubeStore.getState().loadForTask(dup.task.id);
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+      router.back();
+    } catch (err) {
+      console.error("Failed to duplicate task:", err);
     }
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
-    router.back();
   };
 
   return (
@@ -117,6 +146,7 @@ export default function TaskDetailsModal() {
         initialTask={task}
         initialDate={task.date}
         initialChecklist={checklistItems}
+        initialLinks={existingLinks}
         onSubmit={handleUpdate}
         onDelete={handleDelete}
         onDuplicate={handleDuplicate}

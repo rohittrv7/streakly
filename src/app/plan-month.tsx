@@ -14,11 +14,13 @@ import type { TaskCategory } from "@/features/planner/types";
 import { PlanMonthRepeatStep } from "@/features/planner/components/PlanMonthRepeatStep";
 import { PlanMonthPreviewStep } from "@/features/planner/components/PlanMonthPreviewStep";
 import { PlanMonthSummary, type StagedPlanTemplate } from "@/features/planner/components/PlanMonthSummary";
+import { useT } from "@/core/i18n";
 
 const CATEGORIES: TaskCategory[] = ["Study", "Fitness", "Reading", "Work", "Custom"];
 
 export default function PlanMonthModal() {
   const router = useRouter();
+  const { t } = useT();
   const { createMany } = usePlanner();
 
   const today = todayStr();
@@ -105,10 +107,10 @@ export default function PlanMonthModal() {
         <View>
           <View className="flex-row items-center gap-1.5 mb-0.5">
             <CalendarBlank size={14} color={THEME_COLORS.primary} weight="fill" />
-            <Text variant="label">PLANNER</Text>
+            <Text variant="label">{t("tabs.planner").toUpperCase()}</Text>
           </View>
           <Text variant="title">
-            {step === "summary" ? "Plan Summary" : `Plan Month • Step ${step} of 3`}
+            {step === "summary" ? t("planner.planMyMonth") : `${t("planner.planMyMonth")} • ${t("planner.step", { current: step, total: 3 })}`}
           </Text>
         </View>
 
@@ -120,21 +122,21 @@ export default function PlanMonthModal() {
             if (stagedTemplates.length > 0 || title.trim().length > 0) setShowDiscardSheet(true);
             else router.back();
           }}
-          accessibilityLabel="Close"
+          accessibilityLabel={t("common.close")}
         />
       </View>
 
       {step === 1 && (
         <View className="gap-5 pb-8">
           <Input
-            label="TASK TITLE *"
+            label={`${t("planner.taskTitle").toUpperCase()} *`}
             placeholder="e.g. Physics Revision"
             value={title}
-            onChangeText={(t) => { setTitle(t); if (titleError) setTitleError(null); }}
+            onChangeText={(tVal) => { setTitle(tVal); if (titleError) setTitleError(null); }}
             error={titleError || undefined}
           />
           <View className="gap-2">
-            <Text variant="label">CATEGORY</Text>
+            <Text variant="label">{t("habits.category").toUpperCase()}</Text>
             <View className="flex-row flex-wrap gap-2">
               {CATEGORIES.map((cat) => (
                 <Pill key={cat} label={cat} selected={category === cat} colorDot={CATEGORY_COLORS[cat]} onPress={() => setCategory(cat)} />
@@ -150,8 +152,8 @@ export default function PlanMonthModal() {
         <View className="gap-5 pb-8">
           <PlanMonthRepeatStep rule={rule} onChangeRule={setRule} />
           <View className="flex-row gap-3 pt-2">
-            <Button variant="secondary" title="Back" icon={<ArrowLeft size={16} color={THEME_COLORS.text.primary} />} onPress={() => setStep(1)} className="flex-1" />
-            <Button variant="primary" title="Preview Dates" icon={<ArrowRight size={18} color={THEME_COLORS.background} />} onPress={handleNextStep2} className="flex-1" />
+            <Button variant="secondary" title={t("common.back")} icon={<ArrowLeft size={16} color={THEME_COLORS.text.primary} />} onPress={() => setStep(1)} className="flex-1" />
+            <Button variant="primary" title={t("planner.preview")} icon={<ArrowRight size={18} color={THEME_COLORS.background} />} onPress={handleNextStep2} className="flex-1" />
           </View>
         </View>
       )}

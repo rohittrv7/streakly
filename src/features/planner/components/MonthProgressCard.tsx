@@ -2,6 +2,7 @@ import React from "react";
 import { View } from "react-native";
 import { Card, Text, AnimatedNumber } from "@/components/ui";
 import { THEME_COLORS } from "@/lib/theme";
+import { useT } from "@/core/i18n";
 
 export interface MonthProgressCardProps {
   done: number;
@@ -16,13 +17,14 @@ export function MonthProgressCard({
   missed,
   ratio,
 }: MonthProgressCardProps) {
+  const { t } = useT();
   const percentage = Math.round(ratio * 100);
 
   return (
     <Card variant="surface" className="p-4 mb-4 border border-border">
       <View className="flex-row items-center justify-between mb-2">
         <Text variant="label" className="text-text-secondary">
-          MONTHLY COMPLETION
+          {t("planner.monthlyTarget").toUpperCase()}
         </Text>
         <Text variant="caption" className="font-extrabold text-text-primary">
           {percentage}%
@@ -45,14 +47,14 @@ export function MonthProgressCard({
         <View className="flex-row items-baseline gap-1.5">
           <AnimatedNumber value={done} className="text-lg font-extrabold text-text-primary" />
           <Text variant="caption" className="text-text-secondary">
-            of {total} tasks completed
+            / {total} {t("planner.done").toLowerCase()}
           </Text>
         </View>
 
         {missed > 0 && (
           <View className="flex-row items-center gap-1 bg-coral/15 px-2 py-0.5 rounded-pill border border-coral/30">
             <Text className="text-[11px] font-bold text-coral">
-              {missed} {missed === 1 ? "missed" : "missed"}
+              {missed} {t("planner.missed").toLowerCase()}
             </Text>
           </View>
         )}

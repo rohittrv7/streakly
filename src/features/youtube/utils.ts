@@ -21,6 +21,13 @@ const ALLOWED_HOSTS = new Set([
 
 const VIDEO_ID_REGEX = /^[A-Za-z0-9_-]{11}$/;
 
+function extractValidPlaylistId(rawList: string | null): string | undefined {
+  if (!rawList) return undefined;
+  if (/^(RD|LL|WL|UL)/i.test(rawList)) return undefined;
+  if (!/^[A-Za-z0-9_-]+$/.test(rawList)) return undefined;
+  return rawList;
+}
+
 export function parseYouTubeUrl(input: string): ParsedYouTubeLink | null {
   if (!input || typeof input !== "string") return null;
   let trimmed = input.trim();
@@ -43,16 +50,16 @@ export function parseYouTubeUrl(input: string): ParsedYouTubeLink | null {
   const searchParams = url.searchParams;
   const timeParam = searchParams.get("t") || searchParams.get("start");
   const startSeconds = timeParam ? parseTimeString(timeParam) : undefined;
+  const validPlaylistId = extractValidPlaylistId(searchParams.get("list"));
 
   // 1. youtu.be/<id>
   if (hostname === "youtu.be") {
     const pathId = url.pathname.slice(1).split("/")[0];
     if (!VIDEO_ID_REGEX.test(pathId)) return null;
-    const playlistId = searchParams.get("list") || undefined;
     return {
       kind: "video",
       externalId: pathId,
-      playlistId,
+      playlistId: validPlaylistId,
       startSeconds,
       canonicalUrl: `https://www.youtube.com/watch?v=${pathId}`,
     };
@@ -87,12 +94,11 @@ export function parseYouTubeUrl(input: string): ParsedYouTubeLink | null {
 
   // 4. /playlist?list=<id>
   if (url.pathname === "/playlist") {
-    const listId = searchParams.get("list");
-    if (!listId || !/^[A-Za-z0-9_-]+$/.test(listId)) return null;
+    if (!validPlaylistId) return null;
     return {
       kind: "playlist",
-      externalId: listId,
-      canonicalUrl: `https://www.youtube.com/playlist?list=${listId}`,
+      externalId: validPlaylistId,
+      canonicalUrl: `https://www.youtube.com/playlist?list=${validPlaylistId}`,
     };
   }
 
@@ -100,11 +106,10 @@ export function parseYouTubeUrl(input: string): ParsedYouTubeLink | null {
   if (url.pathname === "/watch") {
     const vId = searchParams.get("v");
     if (!vId || !VIDEO_ID_REGEX.test(vId)) return null;
-    const playlistId = searchParams.get("list") || undefined;
     return {
       kind: "video",
       externalId: vId,
-      playlistId,
+      playlistId: validPlaylistId,
       startSeconds,
       canonicalUrl: `https://www.youtube.com/watch?v=${vId}`,
     };

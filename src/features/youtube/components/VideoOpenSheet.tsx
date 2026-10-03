@@ -5,6 +5,7 @@ import { Sheet, Button, Text } from "@/components/ui";
 import { buildOpenUrl, formatTimestamp } from "../utils";
 import type { TaskLink } from "../types";
 import { THEME_COLORS } from "@/lib/theme";
+import { useT } from "@/core/i18n";
 
 export interface VideoOpenSheetProps {
   visible: boolean;
@@ -19,12 +20,13 @@ export function VideoOpenSheet({
   link,
   onWatchInApp,
 }: VideoOpenSheetProps) {
+  const { t } = useT();
   if (!link) return null;
 
   const hasResume = Boolean(link.watchedTillSeconds && link.watchedTillSeconds > 0);
   const resumeLabel = hasResume
-    ? `Resume from ${formatTimestamp(link.watchedTillSeconds || 0)}`
-    : "Open in YouTube";
+    ? `${t("youtube.watchedTill", { time: formatTimestamp(link.watchedTillSeconds || 0) })}`
+    : t("youtube.openInYouTube");
 
   const handleOpenExternal = () => {
     onClose();
@@ -37,7 +39,7 @@ export function VideoOpenSheet({
   };
 
   return (
-    <Sheet visible={visible} onClose={onClose} title="Watch Video">
+    <Sheet visible={visible} onClose={onClose} title={t("youtube.openVideo")}>
       <View className="gap-3 pb-3">
         <Text variant="body" className="font-bold text-sm text-text-primary" numberOfLines={2}>
           {link.title || "YouTube Video"}
@@ -52,7 +54,7 @@ export function VideoOpenSheet({
           />
           <Button
             variant="secondary"
-            title="Watch in App"
+            title={t("youtube.watchInApp")}
             icon={<Play size={18} color={THEME_COLORS.text.primary} weight="bold" />}
             onPress={handleWatchInApp}
           />

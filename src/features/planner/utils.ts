@@ -2,10 +2,10 @@ import { todayStr } from "@/core/utils/dates";
 import { format, parseISO } from "date-fns";
 import type { Task, TaskCategory } from "./types";
 
-export function formatDayLabel(dateStr: string): string {
+export function formatDayLabel(dateStr: string, t?: (key: any) => string): string {
   try {
     const today = todayStr();
-    if (dateStr === today) return "Today";
+    if (dateStr === today) return t ? t("today.today") : "Today";
     const d = parseISO(dateStr);
     return format(d, "EEE, MMM d");
   } catch {

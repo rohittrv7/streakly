@@ -91,3 +91,31 @@ jest.mock("expo-secure-store", () => {
     _clear: () => store.clear(),
   };
 });
+
+jest.mock("react-native-webview", () => {
+  const { View } = require("react-native");
+  return {
+    WebView: View,
+    default: View,
+  };
+});
+
+jest.mock("react-native-youtube-iframe", () => {
+  const { View } = require("react-native");
+  return {
+    __esModule: true,
+    default: View,
+  };
+});
+
+jest.mock("react-native-safe-area-context", () => {
+  const { View } = require("react-native");
+  const inset = { top: 0, right: 0, bottom: 0, left: 0 };
+  return {
+    SafeAreaProvider: ({ children }) => children,
+    SafeAreaConsumer: ({ children }) => children(inset),
+    SafeAreaView: View,
+    useSafeAreaInsets: () => inset,
+    useSafeAreaFrame: () => ({ x: 0, y: 0, width: 390, height: 844 }),
+  };
+});

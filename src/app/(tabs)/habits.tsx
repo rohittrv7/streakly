@@ -6,9 +6,11 @@ import { Screen, Text, Button, EmptyState, Stagger, Skeleton } from "@/component
 import { THEME_COLORS } from "@/lib/theme";
 import { useHabits } from "@/features/habits";
 import { HabitCard } from "@/features/habits/components/HabitCard";
+import { useT } from "@/core/i18n";
 
 export default function HabitsScreen() {
   const router = useRouter();
+  const { t } = useT();
   const { habits, loading, load } = useHabits();
 
   useEffect(() => {
@@ -24,17 +26,19 @@ export default function HabitsScreen() {
         <View className="flex-1">
           <View className="flex-row items-center gap-1.5 mb-1">
             <Target size={14} color={THEME_COLORS.primary} weight="fill" />
-            <Text variant="label">HABITS • {activeCount} ACTIVE</Text>
+            <Text variant="label">
+              {t("habits.activeHabitsHeader", { count: activeCount })}
+            </Text>
           </View>
-          <Text variant="display">Your Routines</Text>
+          <Text variant="display">{t("habits.yourRoutines")}</Text>
         </View>
         <Button
           variant="primary"
           size="sm"
-          title="New"
+          title={t("common.new")}
           icon={<Plus size={16} color={THEME_COLORS.background} weight="bold" />}
           onPress={() => router.push("/habit/new")}
-          accessibilityLabel="Create Habit"
+          accessibilityLabel={t("habits.newHabit")}
         />
       </View>
 
@@ -51,9 +55,9 @@ export default function HabitsScreen() {
       {!loading && habits.length === 0 && (
         <EmptyState
           illustration="empty-habits"
-          title="No Habits Yet"
-          description="Build lasting consistency by creating your first daily or weekly habit."
-          actionLabel="Create First Habit"
+          title={t("habits.noHabitsYet")}
+          description={t("habits.noHabitsDesc")}
+          actionLabel={t("habits.createFirstHabit")}
           onAction={() => router.push("/habit/new")}
           className="mt-4"
         />

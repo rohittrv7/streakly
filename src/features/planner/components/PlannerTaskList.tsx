@@ -9,6 +9,7 @@ import { getNextUnwatchedLink } from "@/features/youtube/utils";
 import { VideoOpenSheet } from "@/features/youtube/components/VideoOpenSheet";
 import { VideoPlayerSheet } from "@/features/youtube/components/VideoPlayerSheet";
 import type { TaskLink } from "@/features/youtube/types";
+import { useT } from "@/core/i18n";
 
 export interface PlannerTaskListProps {
   tasks: Task[];
@@ -26,6 +27,7 @@ export function PlannerTaskList({
   onReschedule,
 }: PlannerTaskListProps) {
   const router = useRouter();
+  const { t } = useT();
   const [activeVideo, setActiveVideo] = useState<TaskLink | null>(null);
   const [playerVideo, setPlayerVideo] = useState<TaskLink | null>(null);
 
@@ -46,9 +48,9 @@ export function PlannerTaskList({
     return (
       <EmptyState
         illustration="empty-planner"
-        title="No Tasks Scheduled"
-        description="Keep your day organized by adding study sessions, workouts, or routines."
-        actionLabel="Add Task"
+        title={t("planner.noTasks")}
+        description={t("planner.nothingPlanned")}
+        actionLabel={t("planner.newTask")}
         onAction={() => router.push({ pathname: "/task/new", params: { date: selectedDate } })}
         className="mt-1 mb-8"
       />

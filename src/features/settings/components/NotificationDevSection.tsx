@@ -150,15 +150,22 @@ export function NotificationDevSection() {
             </Text>
           ) : (
             data.items.map((item) => (
-              <View key={item.id} className="p-2 rounded bg-surface border border-border">
-                <Text variant="caption" className="font-bold text-text-primary">
-                  {item.id}
-                </Text>
+              <View key={item.id} className="p-2.5 rounded bg-surface border border-border gap-1">
+                <View className="flex-row items-center justify-between">
+                  <Text variant="caption" className="font-bold text-text-primary flex-1">
+                    {item.id}
+                  </Text>
+                  <View className="bg-primary/20 px-1.5 py-0.5 rounded border border-primary/40 ml-2">
+                    <Text className="text-[10px] font-extrabold text-primary uppercase">
+                      {item.kind}
+                    </Text>
+                  </View>
+                </View>
                 <Text variant="caption" className="text-text-secondary">
                   {item.title} — {item.body}
                 </Text>
-                <Text variant="caption" className="text-xs text-primary mt-0.5">
-                  At: {item.triggerDescription}
+                <Text variant="caption" className="text-xs text-primary font-semibold">
+                  Fire time: {item.triggerDescription}
                 </Text>
               </View>
             ))

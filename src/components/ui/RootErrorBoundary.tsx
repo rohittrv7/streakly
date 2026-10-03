@@ -4,6 +4,7 @@ import { Warning, ArrowCounterClockwise } from "phosphor-react-native";
 import { Text } from "./Text";
 import { Button } from "./Button";
 import { THEME_COLORS } from "@/lib/theme";
+import { useT } from "@/core/i18n";
 
 export interface ErrorBoundaryProps {
   error: Error;
@@ -11,6 +12,8 @@ export interface ErrorBoundaryProps {
 }
 
 export function RootErrorBoundary({ error, retry }: ErrorBoundaryProps) {
+  const { t } = useT();
+
   return (
     <View
       style={{ backgroundColor: THEME_COLORS.background }}
@@ -20,15 +23,15 @@ export function RootErrorBoundary({ error, retry }: ErrorBoundaryProps) {
         <Warning size={32} color={THEME_COLORS.coral} weight="bold" />
       </View>
       <Text variant="title" className="text-center mb-2 font-bold">
-        Something went wrong
+        {t("common.somethingWentWrong")}
       </Text>
       <Text variant="body" className="text-center text-text-secondary mb-6 max-w-[300px]">
-        {error?.message || "An unexpected error occurred. You can restart the app below."}
+        {error?.message || t("common.unexpectedError")}
       </Text>
       <Button
         variant="primary"
-        title="Restart App"
-        icon={<ArrowCounterClockwise size={18} color="#0F0F10" weight="bold" />}
+        title={t("common.restartApp")}
+        icon={<ArrowCounterClockwise size={18} color={THEME_COLORS.background} weight="bold" />}
         onPress={retry}
       />
     </View>

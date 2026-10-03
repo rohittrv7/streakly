@@ -12,8 +12,10 @@ import {
   StatsSkeleton,
   type StatsRange,
 } from "@/features/stats";
+import { useT } from "@/core/i18n";
 
 export default function StatsScreen() {
+  const { t } = useT();
   const [range, setRange] = useState<StatsRange>("7d");
   const { data, loading, error, retry, refresh } = useStatsData(range);
   const [refreshing, setRefreshing] = useState(false);
@@ -42,10 +44,10 @@ export default function StatsScreen() {
       <View className="pt-2 pb-4">
         <View className="flex-row items-center gap-1.5 mb-1">
           <ChartBar size={14} color={THEME_COLORS.lime} weight="fill" />
-          <Text variant="label">ANALYTICS</Text>
+          <Text variant="label">{t("stats.title").toUpperCase()}</Text>
         </View>
         <Text variant="display" className="mb-4">
-          Your Progress
+          {t("stats.overview")}
         </Text>
 
         <RangeSwitch value={range} onChange={(r) => setRange(r)} />
@@ -58,10 +60,10 @@ export default function StatsScreen() {
       {error && !loading && (
         <View className="bg-surface border border-coral/20 rounded-2xl p-6 items-center my-6">
           <Text className="text-coral font-bold text-base mb-1">
-            Failed to load analytics
+            {t("common.error")}
           </Text>
           <Text className="text-muted text-xs text-center mb-4">{error}</Text>
-          <Button variant="secondary" size="sm" title="Retry" onPress={retry} />
+          <Button variant="secondary" size="sm" title={t("common.retry")} onPress={retry} />
         </View>
       )}
 
@@ -69,9 +71,9 @@ export default function StatsScreen() {
       {!loading && data && !data.hasData && (
         <EmptyState
           illustration="empty-stats"
-          title="No Analytics Yet"
-          description="Complete habits, finish planned tasks, or log a focus session to build your charts and consistency trends."
-          actionLabel="Go to Today"
+          title={t("stats.noStatsData")}
+          description={t("stats.noStatsDesc")}
+          actionLabel={t("common.today")}
           onAction={() => router.push("/(tabs)")}
           className="mt-4"
         />

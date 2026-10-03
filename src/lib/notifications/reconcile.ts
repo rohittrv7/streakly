@@ -7,7 +7,7 @@ import { todayStr, addDays } from "@/core/utils/dates";
 import type { ScheduledSummary, SupportedLanguage } from "./types";
 import { buildNotificationPlan } from "./plan";
 import { diffPlan, isOurNotification } from "./diff";
-import { loadNotificationSettings, getLastAppOpen } from "./settings";
+import { loadNotificationSettings, getLastAppOpen, setReconcileTrigger } from "./settings";
 import { getPermissionStatus } from "./permissions";
 import { ensureNotificationChannels, NOTIFICATION_CHANNELS } from "./channels";
 import { getNotifications } from "./native";
@@ -158,3 +158,6 @@ export function requestNotificationReconcile(debounceMs: number = 800): void {
     reconcileNotificationsNow();
   }, debounceMs);
 }
+
+setReconcileTrigger(requestNotificationReconcile);
+

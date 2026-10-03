@@ -36,8 +36,8 @@ export interface ScheduledSummary {
   contentHash?: string;
 }
 
-export type HabitLeadMinutes = 0 | 2 | 5 | 10 | 15;
-export type TaskLeadMinutes = 0 | 2 | 5 | 10 | 15 | 30;
+export type HabitLeadMinutes = 0 | 1 | 2 | 5 | 10 | 15;
+export type TaskLeadMinutes = 0 | 1 | 2 | 5 | 10 | 15 | 30;
 export type OverdueDelayMinutes = 1 | 30 | 60 | 120;
 export type NotificationTone = "friendly" | "strict";
 export type FocusEndSound = "alarm" | "notification" | "vibrate";

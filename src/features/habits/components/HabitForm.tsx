@@ -7,6 +7,7 @@ import { HabitVisualPickers } from "./HabitVisualPickers";
 import { HabitStatsSection } from "./HabitStatsSection";
 import { Text, Input, Button, Pill } from "@/components/ui";
 import { THEME_COLORS } from "@/lib/theme";
+import { useT } from "@/core/i18n";
 
 const WEEKDAYS = [
   { day: 1, label: "M" },
@@ -39,6 +40,7 @@ export function HabitForm({
   onArchive,
   onDelete,
 }: HabitFormProps) {
+  const { t } = useT();
   const isEditing = Boolean(initialHabit);
   const insets = useSafeAreaInsets();
   const bottomPadding = Math.max(insets.bottom, 16) + 32;
@@ -46,15 +48,9 @@ export function HabitForm({
   const [name, setName] = useState(initialHabit?.name || "");
   const [icon, setIcon] = useState(initialHabit?.icon || "book");
   const [color, setColor] = useState(initialHabit?.color || THEME_COLORS.lime);
-  const [freqType, setFreqType] = useState<HabitFrequencyType>(
-    initialHabit?.frequencyType || "daily"
-  );
-  const [weekdays, setWeekdays] = useState<number[]>(
-    initialHabit?.weekdays?.length ? initialHabit.weekdays : [1, 2, 3, 4, 5]
-  );
-  const [timesPerWeek, setTimesPerWeek] = useState<number>(
-    initialHabit?.timesPerWeek || 3
-  );
+  const [freqType, setFreqType] = useState<HabitFrequencyType>(initialHabit?.frequencyType || "daily");
+  const [weekdays, setWeekdays] = useState<number[]>(initialHabit?.weekdays?.length ? initialHabit.weekdays : [1, 2, 3, 4, 5]);
+  const [timesPerWeek, setTimesPerWeek] = useState<number>(initialHabit?.timesPerWeek || 3);
   const [reminderTime, setReminderTime] = useState(initialHabit?.reminderTime || "");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -111,7 +107,7 @@ export function HabitForm({
     <View style={{ paddingBottom: bottomPadding }} className="gap-5">
       {/* 1. Name Input */}
       <View>
-        <Text variant="label" className="mb-2">HABIT NAME</Text>
+        <Text variant="label" className="mb-2">{t("habits.habitName").toUpperCase()}</Text>
         <Input
           placeholder="e.g. Read 15 pages, Morning Run"
           value={name}
@@ -134,11 +130,11 @@ export function HabitForm({
 
       {/* 3. Frequency Selector */}
       <View>
-        <Text variant="label" className="mb-2">FREQUENCY</Text>
+        <Text variant="label" className="mb-2">{t("habits.frequency").toUpperCase()}</Text>
         <View className="flex-row gap-2 mb-3">
-          <Pill label="Daily" selected={freqType === "daily"} onPress={() => setFreqType("daily")} />
-          <Pill label="Specific Days" selected={freqType === "specific_days"} onPress={() => setFreqType("specific_days")} />
-          <Pill label="Times / Week" selected={freqType === "times_per_week"} onPress={() => setFreqType("times_per_week")} />
+          <Pill label={t("habits.daily")} selected={freqType === "daily"} onPress={() => setFreqType("daily")} />
+          <Pill label={t("habits.frequency")} selected={freqType === "specific_days"} onPress={() => setFreqType("specific_days")} />
+          <Pill label={t("habits.weekly")} selected={freqType === "times_per_week"} onPress={() => setFreqType("times_per_week")} />
         </View>
 
         {freqType === "specific_days" && (
@@ -163,7 +159,7 @@ export function HabitForm({
 
         {freqType === "times_per_week" && (
           <View className="flex-row items-center justify-between bg-surface p-3 rounded-card border border-border">
-            <Text variant="body" className="font-semibold">Goal per week</Text>
+            <Text variant="body" className="font-semibold">{t("habits.weekly")}</Text>
             <View className="flex-row items-center gap-3">
               <Button variant="secondary" size="sm" title="-" onPress={() => setTimesPerWeek(Math.max(1, timesPerWeek - 1))} />
               <Text variant="title" className="min-w-[24px] text-center font-extrabold">{timesPerWeek}</Text>
@@ -175,14 +171,14 @@ export function HabitForm({
 
       {/* 4. Reminder Time */}
       <View>
-        <Text variant="label" className="mb-2">DAILY REMINDER (OPTIONAL)</Text>
+        <Text variant="label" className="mb-2">{t("notifications.habitRemindersTitle").toUpperCase()}</Text>
         <Input placeholder="e.g. 08:30" value={reminderTime} onChangeText={setReminderTime} maxLength={10} />
       </View>
 
       {/* Save Button */}
       <Button
         variant="primary"
-        title={isEditing ? "Save Changes" : "Create Habit"}
+        title={isEditing ? t("common.save") : t("habits.newHabit")}
         loading={submitting}
         onPress={handleSave}
         className="mt-2"

@@ -21,6 +21,7 @@ import {
   type CheckboxColor,
 } from "@/components/ui";
 import { THEME_COLORS } from "@/lib/theme";
+import { useT } from "@/core/i18n";
 
 function resolveColorKey(color: string): CheckboxColor {
   if (color === THEME_COLORS.coral) return "coral";
@@ -35,6 +36,7 @@ export interface HabitCardProps {
 }
 
 export function HabitCard({ habit, onPress }: HabitCardProps) {
+  const { t } = useT();
   const {
     currentStreak,
     last7Days,
@@ -100,7 +102,7 @@ export function HabitCard({ habit, onPress }: HabitCardProps) {
                 {habit.name}
               </StrikeText>
               <Text variant="caption" className="text-text-secondary text-[12px]">
-                {formatFrequency(habit)}
+                {formatFrequency(habit, t)}
               </Text>
             </View>
           </Pressable>

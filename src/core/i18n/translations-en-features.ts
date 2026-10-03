@@ -44,6 +44,12 @@ export const enFocus: FocusTranslationSchema = {
   startFocusAction: "Start Focus",
   markTaskDoneAction: "Mark Task as Done",
   closeAction: "Close",
+  deepWork: "Deep Work",
+  todaySessions: "Today's Sessions",
+  totalFocusTime: "Total Focus Time",
+  noSessionsToday: "No focus sessions completed today.",
+  cycles: "Cycles",
+  target: "Target",
 };
 
 export const enNotifications: NotificationTranslationSchema = {

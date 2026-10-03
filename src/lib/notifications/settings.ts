@@ -139,6 +139,16 @@ interface NotificationStoreState {
   update: (updates: Partial<NotificationSettings>) => Promise<void>;
 }
 
+let reconcileTrigger: ((ms?: number) => void) | null = null;
+
+export function setReconcileTrigger(fn: (ms?: number) => void): void {
+  reconcileTrigger = fn;
+}
+
+export function triggerReconcile(ms: number = 100): void {
+  if (reconcileTrigger) reconcileTrigger(ms);
+}
+
 export const useNotificationSettingsStore = create<NotificationStoreState>((set, get) => ({
   settings: DEFAULT_NOTIFICATION_SETTINGS,
   loading: true,
@@ -150,6 +160,7 @@ export const useNotificationSettingsStore = create<NotificationStoreState>((set,
     const next = { ...get().settings, ...updates };
     set({ settings: next });
     await saveNotificationSettings(updates);
+    triggerReconcile(100);
   },
 }));
 

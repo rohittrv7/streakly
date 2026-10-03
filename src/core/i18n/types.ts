@@ -1,9 +1,20 @@
 import type { FocusTranslationSchema, NotificationTranslationSchema } from "./types-features";
+import type {
+  TabsTranslationSchema,
+  TodayTranslationSchema,
+  HabitsTranslationSchema,
+  PlannerTranslationSchema,
+  StatsTranslationSchema,
+  YouTubeTranslationSchema,
+} from "./types-screens";
+
 export * from "./types-features";
+export * from "./types-screens";
 
 export type Language = "en" | "hinglish";
 
 export interface TranslationSchema {
+  tabs: TabsTranslationSchema;
   common: {
     save: string;
     cancel: string;
@@ -21,50 +32,30 @@ export interface TranslationSchema {
     all: string;
     undo: string;
     today: string;
+    yesterday: string;
+    tomorrow: string;
+    day: string;
+    days: string;
+    new: string;
+    create: string;
+    update: string;
+    remove: string;
+    active: string;
+    min: string;
+    hour: string;
+    somethingWentWrong: string;
+    unexpectedError: string;
+    restartApp: string;
+    dbInitTimeout: string;
+    dbError: string;
+    dbLoading: string;
+    mobileOnlyTitle: string;
+    mobileOnlyDesc: string;
+    retryInit: string;
   };
-  today: {
-    title: string;
-    subtitle: string;
-    streakTitle: string;
-    allDone: string;
-    pendingTasks: string;
-    habitsLeft: string;
-    greetingMorning: string;
-    greetingAfternoon: string;
-    greetingEvening: string;
-    noItems: string;
-    startDay: string;
-  };
-  habits: {
-    title: string;
-    newHabit: string;
-    editHabit: string;
-    habitName: string;
-    frequency: string;
-    daily: string;
-    weekly: string;
-    category: string;
-    currentStreak: string;
-    bestStreak: string;
-    completions: string;
-    deleteConfirm: string;
-    daysCount: string;
-  };
-  planner: {
-    title: string;
-    newTask: string;
-    editTask: string;
-    taskTitle: string;
-    planMonth: string;
-    noTasks: string;
-    dueToday: string;
-    checklist: string;
-    youtubeLinks: string;
-    nextSevenDays: string;
-    nothingPlanned: string;
-    goToPlanner: string;
-    selectTask: string;
-  };
+  today: TodayTranslationSchema;
+  habits: HabitsTranslationSchema;
+  planner: PlannerTranslationSchema;
   categories: {
     study: string;
     fitness: string;
@@ -72,42 +63,9 @@ export interface TranslationSchema {
     work: string;
     custom: string;
   };
-  youtube: {
-    title: string;
-    addLink: string;
-    pasteUrl: string;
-    watch: string;
-    watched: string;
-    unwatch: string;
-    removeConfirm: string;
-    invalidUrl: string;
-    fetchingTitle: string;
-    titleTaken: string;
-    apiKey: string;
-    apiKeyHelp: string;
-    importVideos: string;
-    planAcrossDays: string;
-    resync: string;
-    resyncing: string;
-    importing: string;
-    errorNoKey: string;
-    errorInvalidKey: string;
-    errorQuota: string;
-    errorNotFound: string;
-    errorOffline: string;
-    errorTimeout: string;
-    errorUnknown: string;
-  };
+  youtube: YouTubeTranslationSchema;
   focus: FocusTranslationSchema;
-  stats: {
-    title: string;
-    overview: string;
-    completionRate: string;
-    currentStreak: string;
-    focusTime: string;
-    tasksDone: string;
-    weeklyActivity: string;
-  };
+  stats: StatsTranslationSchema;
   notifications: NotificationTranslationSchema;
   settings: {
     title: string;
@@ -130,6 +88,8 @@ export interface TranslationSchema {
     reseed: string;
     youtubeApiKey: string;
     youtubeApiKeyHelp: string;
+    appLanguage: string;
+    streakSaved: string;
   };
   about: {
     appName: string;

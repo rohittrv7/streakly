@@ -15,6 +15,7 @@ import { DeleteTaskSheet } from "./DeleteTaskSheet";
 import { YouTubeSection, type TaskLink } from "@/features/youtube";
 import { todayStr } from "@/core/utils/dates";
 import { useTaskFormYouTube } from "./useTaskFormYouTube";
+import { useT } from "@/core/i18n";
 
 const CATEGORIES: TaskCategory[] = ["Study", "Fitness", "Reading", "Work", "Custom"];
 
@@ -46,8 +47,10 @@ export function TaskForm({
   onSubmit,
   onDelete,
   onDuplicate,
-  submitLabel = initialTask ? "Save Changes" : "Create Task",
+  submitLabel: customSubmitLabel,
 }: TaskFormProps) {
+  const { t } = useT();
+  const submitLabel = customSubmitLabel || (initialTask ? t("planner.saveTask") : t("planner.createTask"));
   const [title, setTitle] = useState(initialTask?.title || "");
   const [notes, setNotes] = useState(initialTask?.notes || "");
   const [category, setCategory] = useState<TaskCategory>(initialTask?.category || "Study");
@@ -133,7 +136,7 @@ export function TaskForm({
       />
 
       <YouTubeSection
-        taskId={initialTask?.id}
+        mode="edit"
         pendingLinks={yt.pendingLinks}
         pendingMetadataStatus={yt.pendingMetaStatus}
         onAddPendingLink={yt.handleAddPendingLink}
@@ -148,10 +151,10 @@ export function TaskForm({
       <View className="gap-3 pt-2">
         <Button variant="primary" title={submitLabel} onPress={handleSubmit} loading={loading} />
         {initialTask && onDuplicate && (
-          <Button variant="secondary" title="Duplicate Task" icon={<Copy size={16} color={THEME_COLORS.text.primary} />} onPress={onDuplicate} />
+          <Button variant="secondary" title={t("planner.duplicateTask")} icon={<Copy size={16} color={THEME_COLORS.text.primary} />} onPress={onDuplicate} />
         )}
         {initialTask && onDelete && (
-          <Button variant="ghost" title="Delete Task" icon={<Trash size={16} color={THEME_COLORS.coral} />} textClassName="text-coral" onPress={() => setDeleteSheetVisible(true)} />
+          <Button variant="ghost" title={t("planner.deleteTask")} icon={<Trash size={16} color={THEME_COLORS.coral} />} textClassName="text-coral" onPress={() => setDeleteSheetVisible(true)} />
         )}
       </View>
 

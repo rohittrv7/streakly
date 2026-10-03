@@ -6,6 +6,7 @@ import { Card, Text, Sheet, Button } from "@/components/ui";
 import { THEME_COLORS } from "@/lib/theme";
 import { usePlannerStore } from "@/features/planner/store";
 import type { FocusSession } from "../types";
+import { useT } from "@/core/i18n";
 
 export interface TodayFocusSessionsCardProps {
   sessions: FocusSession[];
@@ -28,6 +29,7 @@ export function TodayFocusSessionsCard({
   todaySessionCount,
   onDeleteSession,
 }: TodayFocusSessionsCardProps) {
+  const { t } = useT();
   const tasks = usePlannerStore((s) => s.tasks);
   const [deleteTarget, setDeleteTarget] = useState<FocusSession | null>(null);
 
@@ -45,16 +47,16 @@ export function TodayFocusSessionsCard({
       <View className="flex-row items-center justify-between border-b border-border pb-3">
         <View>
           <Text variant="label" className="text-[11px] text-text-muted tracking-wider">
-            TODAY'S FOCUS
+            {t("focus.todaySessions").toUpperCase()}
           </Text>
           <Text variant="body" className="font-extrabold text-base text-text-primary mt-0.5">
-            {todayMinutes} min focused
+            {todayMinutes} {t("common.min")}
           </Text>
         </View>
 
         <View className="bg-primary/20 px-2.5 py-1 rounded-pill border border-primary/40">
           <Text className="text-[11px] font-extrabold text-primary">
-            {todaySessionCount} {todaySessionCount === 1 ? "session" : "sessions"}
+            {todaySessionCount} {t("focus.cycles").toLowerCase()}
           </Text>
         </View>
       </View>
@@ -63,7 +65,7 @@ export function TodayFocusSessionsCard({
       {sessions.length === 0 ? (
         <View className="py-4 items-center justify-center">
           <Text variant="caption" className="text-text-muted text-xs text-center">
-            No focus sessions logged today yet. Start the timer to log your focus time!
+            {t("focus.noSessionsToday")}
           </Text>
         </View>
       ) : (

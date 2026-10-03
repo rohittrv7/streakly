@@ -9,6 +9,7 @@ import { Card, Text, StrikeText, Checkbox, Pill, Button, CategoryChip } from "@/
 import { THEME_COLORS } from "@/lib/theme";
 import { todayStr } from "@/core/utils/dates";
 import { useLinksProgress } from "@/features/youtube";
+import { useT } from "@/core/i18n";
 
 export interface PlannerTaskRowProps {
   task: Task;
@@ -31,6 +32,7 @@ export function PlannerTaskRow({
   checklistProgress,
   today = todayStr(),
 }: PlannerTaskRowProps) {
+  const { t } = useT();
   const ytProgress = useLinksProgress(task.id);
   const isYtAllWatched = ytProgress.total > 0 && ytProgress.watched === ytProgress.total;
   const missed = isMissed(task, today);
@@ -153,13 +155,15 @@ export function PlannerTaskRow({
         <View className="flex-row items-center justify-between mt-2.5 pt-2 border-t border-border">
           <View className="flex-row items-center gap-1.5">
             <View className="w-2 h-2 rounded-full bg-coral" />
-            <Text className="text-[11px] font-bold text-coral">Missed task</Text>
+            <Text className="text-[11px] font-bold text-coral">
+              {t("planner.missed")}
+            </Text>
           </View>
 
           <Button
             variant="secondary"
             size="sm"
-            title="Reschedule"
+            title={t("planner.reschedule")}
             icon={<CalendarPlus size={14} color={THEME_COLORS.text.primary} />}
             onPress={onReschedule}
             className="py-1 px-2.5"

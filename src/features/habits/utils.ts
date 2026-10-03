@@ -25,20 +25,23 @@ const WEEKDAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 /**
  * Formats user-facing frequency label matching isScheduledOn rules.
  */
-export function formatFrequency(habit: Habit): string {
+export function formatFrequency(
+  habit: Habit,
+  t?: (key: any, params?: any) => string
+): string {
   if (habit.frequencyType === "daily") {
-    return "Every day";
+    return t ? t("habits.everyDay") : "Every day";
   }
 
   if (habit.frequencyType === "times_per_week") {
     const times = habit.timesPerWeek && habit.timesPerWeek > 0 ? habit.timesPerWeek : 1;
-    return `${times}x a week`;
+    return t ? t("habits.timesAWeek", { count: times }) : `${times}x a week`;
   }
 
   if (habit.frequencyType === "specific_days") {
     const weekdays = habit.weekdays || [];
-    if (weekdays.length === 0) return "Not scheduled";
-    if (weekdays.length === 7) return "Every day";
+    if (weekdays.length === 0) return t ? t("habits.notScheduled") : "Not scheduled";
+    if (weekdays.length === 7) return t ? t("habits.everyDay") : "Every day";
 
     const sorted = [...weekdays].sort((a, b) => a - b);
     if (
@@ -49,17 +52,17 @@ export function formatFrequency(habit: Habit): string {
       sorted[3] === 4 &&
       sorted[4] === 5
     ) {
-      return "Mon - Fri";
+      return t ? t("habits.monFri") : "Mon - Fri";
     }
 
     if (sorted.length === 2 && sorted[0] === 0 && sorted[1] === 6) {
-      return "Weekends";
+      return t ? t("habits.weekends") : "Weekends";
     }
 
     return sorted.map((d) => WEEKDAY_NAMES[d]).join(", ");
   }
 
-  return "Every day";
+  return t ? t("habits.everyDay") : "Every day";
 }
 
 /**

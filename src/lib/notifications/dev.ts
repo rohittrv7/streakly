@@ -6,10 +6,23 @@ import { getPermissionStatus, requestNotificationPermission } from "./permission
 
 export interface ScheduledNotificationItem {
   id: string;
+  kind: string;
   title: string | null;
   body: string | null;
   triggerDescription: string;
   channelId?: string;
+}
+
+function resolveNotificationKind(id: string): string {
+  if (id.endsWith(":pre")) return "pre";
+  if (id.endsWith(":at")) return "at";
+  if (id.endsWith(":late")) return "late";
+  if (id.startsWith("nudge:")) return "nudge";
+  if (id.startsWith("brief:")) return "brief";
+  if (id.startsWith("streakbroken:")) return "streakbroken";
+  if (id.startsWith("comeback:")) return "comeback";
+  if (id.startsWith("test:")) return "test";
+  return "other";
 }
 
 export async function getScheduledNotifications(): Promise<{
@@ -46,6 +59,7 @@ export async function getScheduledNotifications(): Promise<{
       }
       return {
         id: n.identifier,
+        kind: resolveNotificationKind(n.identifier),
         title: n.content?.title || null,
         body: n.content?.body || null,
         triggerDescription,

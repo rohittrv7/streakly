@@ -20,3 +20,5 @@ export * from "./components/PlanMonthPreviewStep";
 export * from "./components/PlanMonthSummary";
 export * from "./components/PlannerTaskList";
 export * from "./components/TaskDetailView";
+export * from "./create-task-transaction";
+export * from "./update-task-transaction";

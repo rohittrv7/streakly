@@ -5,6 +5,7 @@ import type { Habit } from "@/features/habits/types";
 import { Card, Text, AnimatedNumber, ProgressRing } from "@/components/ui";
 import { THEME_COLORS } from "@/lib/theme";
 import { useAccent } from "@/lib/theme/store";
+import { useT } from "@/core/i18n";
 
 export interface TodayBentoGridProps {
   topStreakHabit: Habit | null;
@@ -32,6 +33,7 @@ export function TodayBentoGrid({
   focusMinutes,
 }: TodayBentoGridProps) {
   const { accent } = useAccent();
+  const { t } = useT();
 
   return (
     <View className="gap-3 mb-6">
@@ -41,16 +43,20 @@ export function TodayBentoGrid({
         <Card variant="surface" className="flex-[1.2] p-4 border border-border justify-between min-h-[120px]">
           <View className="flex-row items-center gap-1.5">
             <Fire size={18} color={accent.hex} weight="fill" />
-            <Text variant="label" style={{ color: accent.hex }} className="font-bold">TOP STREAK</Text>
+            <Text variant="label" style={{ color: accent.hex }} className="font-bold">
+              {t("today.topStreak")}
+            </Text>
           </View>
 
           <View>
             <View className="flex-row items-baseline gap-1.5">
               <AnimatedNumber value={topStreak} className="text-3xl font-extrabold text-text-primary" />
-              <Text variant="caption">{topStreak === 1 ? "day" : "days"}</Text>
+              <Text variant="caption">
+                {topStreak === 1 ? t("common.day") : t("common.days")}
+              </Text>
             </View>
             <Text variant="caption" className="text-text-secondary mt-0.5" numberOfLines={1}>
-              {topStreakHabit?.name || "No habits active"}
+              {topStreakHabit?.name || t("today.noHabitsActive")}
             </Text>
           </View>
         </Card>
@@ -68,7 +74,7 @@ export function TodayBentoGrid({
                 {dayDone}/{dayTotal}
               </Text>
               <Text variant="caption" className="text-[10px] text-text-muted">
-                Done
+                {t("today.dayProgressDone")}
               </Text>
             </View>
           </ProgressRing>
@@ -80,7 +86,7 @@ export function TodayBentoGrid({
         {/* 1. Habits Today */}
         <Card variant="surface" className="flex-1 p-3.5 border border-border justify-between min-h-[90px]">
           <View className="flex-row items-center justify-between">
-            <Text variant="caption" className="text-text-muted">Habits</Text>
+            <Text variant="caption" className="text-text-muted">{t("today.habitsCard")}</Text>
             <CheckCircle size={15} color={THEME_COLORS.mint} weight="fill" />
           </View>
           <View className="flex-row items-baseline gap-1 mt-2">
@@ -92,7 +98,7 @@ export function TodayBentoGrid({
         {/* 2. Tasks Due Today */}
         <Card variant="surface" className="flex-1 p-3.5 border border-border justify-between min-h-[90px]">
           <View className="flex-row items-center justify-between">
-            <Text variant="caption" className="text-text-muted">Tasks</Text>
+            <Text variant="caption" className="text-text-muted">{t("today.tasksCard")}</Text>
             <ListChecks size={15} color={THEME_COLORS.sky} weight="fill" />
           </View>
           <View className="flex-row items-baseline gap-1 mt-2">
@@ -104,12 +110,12 @@ export function TodayBentoGrid({
         {/* 3. Deep Focus Today */}
         <Card variant="surface" className="flex-1 p-3.5 border border-border justify-between min-h-[90px]">
           <View className="flex-row items-center justify-between">
-            <Text variant="caption" className="text-text-muted">Focus</Text>
+            <Text variant="caption" className="text-text-muted">{t("today.focusCard")}</Text>
             <Timer size={15} color={THEME_COLORS.coral} weight="fill" />
           </View>
           <View className="flex-row items-baseline gap-0.5 mt-2">
             <AnimatedNumber value={focusMinutes} className="text-xl font-bold text-text-primary" />
-            <Text variant="caption" className="text-text-secondary">m</Text>
+            <Text variant="caption" className="text-text-secondary">{t("common.min")}</Text>
           </View>
         </Card>
       </View>

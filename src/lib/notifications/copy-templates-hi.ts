@@ -4,14 +4,14 @@ export const COPY_TEMPLATES_HI = {
   friendly: {
     pre: {
       titles: (name: string, lead: number) => [
-        `${lead} min mein: ${name}`,
+        `${lead === 1 ? "1 min" : `${lead} min`} mein: ${name}`,
         `Taiyaar ho jao: ${name}`,
         `${name} shuru hone wala hai`,
       ],
       bodies: (name: string, lead: number, streak?: number) => [
-        streak ? `Taiyaar ho jao. ${streak} din ki streak chal rahi hai.` : `${lead} minute mein ${name} shuru hone wala hai.`,
-        streak ? `Bas ${lead} min door. ${streak} din ka streak banaye rakhein.` : `Agla task ${name} hai, taiyaari kar lijiye.`,
-        streak ? `${name} ka time paas hai. ${streak} din ki mehnat jari rakhein.` : `${lead} min mein ${name} ke liye ready ho jao.`,
+        streak ? `Taiyaar ho jao. ${streak} din ki streak chal rahi hai.` : `${lead === 1 ? "1 minute" : `${lead} minute`} mein ${name} shuru hone wala hai.`,
+        streak ? `Bas ${lead === 1 ? "1 min" : `${lead} min`} door. ${streak} din ka streak banaye rakhein.` : `Agla task ${name} hai, taiyaari kar lijiye.`,
+        streak ? `${name} ka time paas hai. ${streak} din ki mehnat jari rakhein.` : `${lead === 1 ? "1 min" : `${lead} min`} mein ${name} ke liye ready ho jao.`,
       ],
     },
     at: {
@@ -54,13 +54,13 @@ export const COPY_TEMPLATES_HI = {
   strict: {
     pre: {
       titles: (name: string, lead: number) => [
-        `${name} ${lead} min mein`,
+        `${lead === 1 ? "1 min" : `${lead} min`} mein: ${name}`,
         `Dhyan dein: ${name}`,
         `Time hone wala hai: ${name}`,
       ],
       bodies: (name: string, lead: number, streak?: number) => [
-        streak ? `${lead} min mein shuru. ${streak} din ki streak par focus rakhein.` : `${lead} minute mein shuru karo, delay mat karna.`,
-        streak ? `${name} aane wala hai. Koi bahana nahi, time par shuru karein.` : `Schedule par bane rahein, ${lead} min mein shuru karein.`,
+        streak ? `${lead === 1 ? "1 min" : `${lead} min`} mein shuru. ${streak} din ki streak par focus rakhein.` : `${lead === 1 ? "1 minute" : `${lead} minute`} mein shuru karo, delay mat karna.`,
+        streak ? `${name} aane wala hai. Koi bahana nahi, time par shuru karein.` : `Schedule par bane rahein, ${lead === 1 ? "1 min" : `${lead} min`} mein shuru karein.`,
         streak ? `Time waste mat karo. ${streak} din ka streak barkarar rakho.` : `Taiyaar rahein, ${name} right time par shuru karna hai.`,
       ],
     },

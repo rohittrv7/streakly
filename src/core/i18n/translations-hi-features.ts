@@ -44,6 +44,12 @@ export const hinglishFocus: FocusTranslationSchema = {
   startFocusAction: "Focus Shuru Karein",
   markTaskDoneAction: "Task Done Mark Karein",
   closeAction: "Band Karein",
+  deepWork: "Gehra Focus",
+  todaySessions: "Aaj Ke Sessions",
+  totalFocusTime: "Kul Focus Samay",
+  noSessionsToday: "Aaj koi focus session poora nahi hua.",
+  cycles: "Cycles",
+  target: "Target",
 };
 
 export const hinglishNotifications: NotificationTranslationSchema = {
