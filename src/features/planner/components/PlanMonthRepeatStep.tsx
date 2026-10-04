@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { View, Pressable } from "react-native";
-import { Calendar, Plus, Minus } from "phosphor-react-native";
+import { Calendar, Plus, Minus } from "@/components/icons";
 import { Text, Button, Pill } from "@/components/ui";
 import { THEME_COLORS } from "@/lib/theme";
 import { DatePickerSheet } from "./DatePickerSheet";

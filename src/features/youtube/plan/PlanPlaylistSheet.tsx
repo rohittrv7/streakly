@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from "react";
 import { View, Pressable, ScrollView } from "react-native";
 import { useRouter } from "expo-router";
-import { Calendar, Clock, Minus, Plus, Sparkle } from "phosphor-react-native";
+import { Calendar, Clock, Minus, Plus, Sparkle } from "@/components/icons";
 import { Sheet, Text, Button } from "@/components/ui";
 import { THEME_COLORS } from "@/lib/theme";
 import { Haptics } from "@/core/utils/haptics";

@@ -55,7 +55,7 @@ export function useTaskFormYouTube({
       url: parsed.canonicalUrl,
       kind: parsed.kind === "playlist" ? "playlist" : "video",
       externalId: parsed.externalId,
-      title: parsed.kind === "playlist" ? "YouTube Playlist" : "YouTube Video",
+      title: "Fetching title...",
       thumbnailUrl: thumb,
       watched: false,
       watchedTillSeconds: parsed.startSeconds || null,
@@ -134,6 +134,22 @@ export function useTaskFormYouTube({
     setShowAutofillCaption(false);
   };
 
+  const handleAddPendingBatch = async (urls: string[]) => {
+    let added = 0;
+    let existing = 0;
+    for (const url of urls) {
+      try {
+        await handleAddPendingLink(url);
+        added++;
+      } catch (err: unknown) {
+        if (err instanceof Error && err.message.toLowerCase().includes("already")) {
+          existing++;
+        }
+      }
+    }
+    return { added, existing };
+  };
+
   return {
     pendingLinks,
     setPendingLinks,
@@ -141,6 +157,7 @@ export function useTaskFormYouTube({
     isFetchingTitle,
     showAutofillCaption,
     handleAddPendingLink,
+    handleAddPendingBatch,
     handleRetryPendingMetadata,
     onUserChangeTitle,
     onUndoAutofill,

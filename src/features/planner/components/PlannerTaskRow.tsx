@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Pressable } from "react-native";
-import { Clock, DotsThreeVertical, CheckSquareOffset, CalendarPlus, Play } from "phosphor-react-native";
+import { Clock, DotsThreeVertical, CheckSquareOffset, CalendarPlus, Play } from "@/components/icons";
 import { Haptics } from "@/core/utils/haptics";
 import type { Task } from "../types";
 import { CATEGORY_COLORS } from "../calendar";

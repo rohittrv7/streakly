@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { View, Pressable, RefreshControl } from "react-native";
 import { useRouter } from "expo-router";
-import { Plus } from "phosphor-react-native";
+import { Plus } from "@/components/icons";
 import { parseISO, format } from "date-fns";
 import { Haptics } from "@/core/utils/haptics";
 import { Screen, Text, EmptyState, Skeleton, Stagger, useTabBarInset } from "@/components/ui";

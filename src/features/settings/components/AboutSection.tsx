@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { View, Pressable } from "react-native";
 import Constants from "expo-constants";
-import { Info, Flame, ShieldCheck, CaretRight } from "phosphor-react-native";
+import { Info, Flame, ShieldCheck, CaretRight } from "@/components/icons";
 import { Card, Text, Sheet, Button } from "@/components/ui";
 import { THEME_COLORS } from "@/lib/theme";
 import { useAccent } from "@/lib/theme/store";

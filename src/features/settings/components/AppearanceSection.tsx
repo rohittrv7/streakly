@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Pressable } from "react-native";
-import { Check, Vibrate, Translate, Palette } from "phosphor-react-native";
+import { Check, Vibrate, Translate, Palette } from "@/components/icons";
 import { Card, Text, Toggle, Button, Pill } from "@/components/ui";
 import { ACCENT_LIST, type AccentKey } from "@/lib/theme/accents";
 import { useAccent } from "@/lib/theme/store";

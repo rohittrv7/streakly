@@ -6,7 +6,7 @@ import Animated, {
   withTiming,
   useReducedMotion,
 } from "react-native-reanimated";
-import { Fire, DotsThreeVertical } from "phosphor-react-native";
+import { Fire, DotsThreeVertical } from "@/components/icons";
 import { Haptics } from "@/core/utils/haptics";
 import type { Habit } from "../types";
 import { useHabitStats } from "../hooks";

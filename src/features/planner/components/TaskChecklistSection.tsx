@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { View, Pressable } from "react-native";
-import { Plus, Trash } from "phosphor-react-native";
+import { Plus, Trash } from "@/components/icons";
 import type { TaskChecklistItem } from "../types";
 import { Text, Input, Button, Checkbox } from "@/components/ui";
 import { THEME_COLORS } from "@/lib/theme";

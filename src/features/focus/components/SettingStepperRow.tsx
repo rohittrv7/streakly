@@ -1,6 +1,6 @@
 import React from "react";
 import { View, TouchableOpacity } from "react-native";
-import { Plus, Minus } from "phosphor-react-native";
+import { Plus, Minus } from "@/components/icons";
 import { Text, Button } from "@/components/ui";
 import { THEME_COLORS } from "@/lib/theme";
 

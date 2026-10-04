@@ -1,6 +1,6 @@
 import React from "react";
 import { View } from "react-native";
-import { CheckCircle } from "phosphor-react-native";
+import { CheckCircle } from "@/components/icons";
 import { Sheet, Text, Button } from "@/components/ui";
 import { THEME_COLORS } from "@/lib/theme";
 

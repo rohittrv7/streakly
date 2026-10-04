@@ -1,23 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
-  Modal,
-  View,
-  Text,
-  Pressable,
-  PanResponder,
-  KeyboardAvoidingView,
-  Platform,
-  TouchableWithoutFeedback,
-  Dimensions,
-  ScrollView,
+  Modal, View, Text, Pressable, PanResponder, KeyboardAvoidingView,
+  TouchableWithoutFeedback, Dimensions, ScrollView,
 } from "react-native";
 import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  Easing,
-  runOnJS,
-  useReducedMotion,
+  useSharedValue, useAnimatedStyle, withTiming, Easing, runOnJS, useReducedMotion,
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { cn } from "@/core/utils/cn";
@@ -136,7 +123,7 @@ export function Sheet({
 
         {/* Keyboard Aware Sheet Container */}
         <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : undefined}
+          behavior="padding"
           pointerEvents="box-none"
           className="w-full justify-end"
         >
@@ -164,14 +151,22 @@ export function Sheet({
 
             {/* Optional Title Header */}
             {title && (
-              <View className="flex-row items-center justify-between pb-3 mb-2 border-b border-border">
-                <Text className="text-text-primary font-bold text-lg">{title}</Text>
+              <View className="flex-row items-center justify-between gap-3 pb-3 mb-2 border-b border-border">
+                <Text
+                  className="flex-1 min-w-0 text-text-primary font-bold text-lg"
+                  numberOfLines={2}
+                  ellipsizeMode="tail"
+                >
+                  {title}
+                </Text>
                 <Pressable
                   onPress={onClose}
-                  hitSlop={12}
-                  className="w-8 h-8 rounded-full bg-elevated items-center justify-center border border-border active:opacity-60"
+                  hitSlop={8}
+                  className="w-11 h-11 shrink-0 rounded-full bg-elevated items-center justify-center border border-border active:opacity-60"
+                  accessibilityRole="button"
+                  accessibilityLabel="Close"
                 >
-                  <Text className="text-text-secondary text-sm font-bold">✕</Text>
+                  <Text className="text-text-secondary text-base font-bold">✕</Text>
                 </Pressable>
               </View>
             )}

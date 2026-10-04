@@ -8,7 +8,7 @@ import Animated, {
   useReducedMotion,
 } from "react-native-reanimated";
 import { Haptics } from "@/core/utils/haptics";
-import { Check } from "phosphor-react-native";
+import { Check } from "@/components/icons";
 import { cn } from "@/core/utils/cn";
 
 import { THEME_COLORS } from "@/lib/theme";

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { View } from "react-native";
 import { useRouter } from "expo-router";
-import { X, ArrowRight, ArrowLeft, CalendarBlank } from "phosphor-react-native";
+import { X, ArrowRight, ArrowLeft, CalendarBlank } from "@/components/icons";
 import { Haptics } from "@/core/utils/haptics";
 import { parseISO, endOfMonth } from "date-fns";
 import { Screen, Text, Button, Input, Pill, Sheet } from "@/components/ui";
@@ -102,14 +102,14 @@ export default function PlanMonthModal() {
   };
 
   return (
-    <Screen scroll>
+    <Screen scroll keyboard>
       <View className="flex-row items-center justify-between pt-2 pb-4 mb-4 border-b border-border">
-        <View>
+        <View className="flex-1 min-w-0 mr-2">
           <View className="flex-row items-center gap-1.5 mb-0.5">
             <CalendarBlank size={14} color={THEME_COLORS.primary} weight="fill" />
             <Text variant="label">{t("tabs.planner").toUpperCase()}</Text>
           </View>
-          <Text variant="title">
+          <Text variant="title" numberOfLines={2} ellipsizeMode="tail">
             {step === "summary" ? t("planner.planMyMonth") : `${t("planner.planMyMonth")} • ${t("planner.step", { current: step, total: 3 })}`}
           </Text>
         </View>

@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Pressable, ScrollView } from "react-native";
-import { CheckSquare, Square } from "phosphor-react-native";
+import { CheckSquare, Square } from "@/components/icons";
 import { Text } from "@/components/ui";
 import { THEME_COLORS } from "@/lib/theme";
 import type { DayPlan } from "./types";

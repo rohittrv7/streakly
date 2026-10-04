@@ -6,7 +6,7 @@ import {
   FileArrowDown,
   Trash,
   ArrowUUpLeft,
-} from "phosphor-react-native";
+} from "@/components/icons";
 import { Card, Text, Button } from "@/components/ui";
 import { THEME_COLORS } from "@/lib/theme";
 import { useAccent } from "@/lib/theme/store";

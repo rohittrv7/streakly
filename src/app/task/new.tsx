@@ -1,7 +1,7 @@
 import React from "react";
 import { View } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
-import { X, CalendarPlus } from "phosphor-react-native";
+import { X, CalendarPlus } from "@/components/icons";
 import { Haptics } from "@/core/utils/haptics";
 import { Screen, Text, Button } from "@/components/ui";
 import { TaskForm } from "@/features/planner/components/TaskForm";
@@ -57,7 +57,7 @@ export default function NewTaskScreen() {
   };
 
   return (
-    <Screen scroll>
+    <Screen scroll keyboard>
       <View className="flex-row items-center justify-between pt-2 pb-5 mb-5 border-b border-border">
         <View>
           <View className="flex-row items-center gap-1.5 mb-0.5">

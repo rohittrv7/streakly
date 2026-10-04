@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { View, Pressable } from "react-native";
-import { Play, Pause, ArrowCounterClockwise, SkipForward } from "phosphor-react-native";
+import { Play, Pause, ArrowCounterClockwise, SkipForward } from "@/components/icons";
 import { Haptics } from "@/core/utils/haptics";
 import { Pill, Sheet, Text, Button } from "@/components/ui";
 import { THEME_COLORS } from "@/lib/theme";

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { View } from "react-native";
-import { Trash, Warning } from "phosphor-react-native";
+import { Trash, Warning } from "@/components/icons";
 import { Sheet, Text, Button, Input } from "@/components/ui";
 import { THEME_COLORS } from "@/lib/theme";
 

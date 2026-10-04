@@ -1,6 +1,6 @@
 import React from "react";
 import { View, ScrollView } from "react-native";
-import { ArrowLeft, Plus } from "phosphor-react-native";
+import { ArrowLeft, Plus } from "@/components/icons";
 import { Text, Button, Checkbox, Card } from "@/components/ui";
 import { THEME_COLORS } from "@/lib/theme";
 

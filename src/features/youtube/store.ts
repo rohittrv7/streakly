@@ -64,7 +64,7 @@ export const useYouTubeStore = create<YouTubeState>((set, get) => {
       const isDuplicate = currentLinks.some((l) => l.externalId === parsed.externalId);
       if (isDuplicate) throw new Error("This video is already attached to this task.");
 
-      const fallbackTitle = parsed.kind === "playlist" ? "YouTube Playlist" : "YouTube Video";
+      const fallbackTitle = "Fetching title...";
       const fallbackThumb =
         parsed.kind === "video" || parsed.kind === "short"
           ? getFallbackThumbnail(parsed.externalId)

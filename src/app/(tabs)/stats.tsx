@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { View, RefreshControl } from "react-native";
 import { router } from "expo-router";
-import { ChartBar } from "phosphor-react-native";
+import { ChartBar } from "@/components/icons";
 import { Screen, Text, EmptyState, Button } from "@/components/ui";
 import { THEME_COLORS } from "@/lib/theme";
 import { todayStr } from "@/core/utils/dates";

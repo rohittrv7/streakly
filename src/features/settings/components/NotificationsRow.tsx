@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { View, Pressable } from "react-native";
-import { Bell, CaretRight } from "phosphor-react-native";
+import { Bell, CaretRight } from "@/components/icons";
 import { Card, Text } from "@/components/ui";
 import { THEME_COLORS } from "@/lib/theme";
 import { useAccent } from "@/lib/theme/store";

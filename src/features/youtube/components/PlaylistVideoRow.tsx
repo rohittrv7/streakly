@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Image, Pressable } from "react-native";
-import { CheckSquare, Square } from "phosphor-react-native";
+import { CheckSquare, Square } from "@/components/icons";
 import { Text } from "@/components/ui";
 import { THEME_COLORS } from "@/lib/theme";
 import { Haptics } from "@/core/utils/haptics";

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { View, Pressable } from "react-native";
 import { format, parseISO } from "date-fns";
-import { DotsThreeVertical, Trash } from "phosphor-react-native";
+import { DotsThreeVertical, Trash } from "@/components/icons";
 import { Card, Text, Sheet, Button } from "@/components/ui";
 import { THEME_COLORS } from "@/lib/theme";
 import { usePlannerStore } from "@/features/planner/store";

@@ -1,7 +1,7 @@
 import React from "react";
 import { View } from "react-native";
 import { useRouter } from "expo-router";
-import { Gear, Sparkle } from "phosphor-react-native";
+import { Gear, Sparkle } from "@/components/icons";
 import { Text, Button } from "@/components/ui";
 import { THEME_COLORS } from "@/lib/theme";
 import { useAccent } from "@/lib/theme/store";

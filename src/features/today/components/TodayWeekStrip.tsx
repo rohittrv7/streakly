@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Pressable } from "react-native";
 import { startOfWeek, endOfWeek, parseISO, format } from "date-fns";
-import { CaretLeft, CaretRight } from "phosphor-react-native";
+import { CaretLeft, CaretRight } from "@/components/icons";
 import { Haptics } from "@/core/utils/haptics";
 import { Text } from "@/components/ui";
 import { THEME_COLORS } from "@/lib/theme";

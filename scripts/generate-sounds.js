@@ -8,7 +8,7 @@
 const fs = require("fs");
 const path = require("path");
 
-const SAMPLE_RATE = 44100;
+const SAMPLE_RATE = 22050;
 const DURATION_SEC = 4.2;
 const TOTAL_SAMPLES = Math.floor(SAMPLE_RATE * DURATION_SEC);
 

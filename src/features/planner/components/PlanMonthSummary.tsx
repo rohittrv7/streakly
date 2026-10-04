@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Pressable } from "react-native";
-import { Plus, Trash, CheckCircle } from "phosphor-react-native";
+import { Plus, Trash, CheckCircle } from "@/components/icons";
 import { Card, Text, Button } from "@/components/ui";
 import { THEME_COLORS } from "@/lib/theme";
 import { CATEGORY_COLORS } from "../calendar";

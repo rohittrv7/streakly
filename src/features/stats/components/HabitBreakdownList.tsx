@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, Pressable } from "react-native";
 import { router } from "expo-router";
-import { CaretRight, Fire } from "phosphor-react-native";
+import { CaretRight, Fire } from "@/components/icons";
 import { HabitIcon } from "@/features/habits/components/HabitIcon";
 import { THEME_COLORS } from "@/lib/theme";
 import type { HabitBreakdownItem } from "../types";

@@ -13,7 +13,7 @@ import {
   CalendarBlank,
   Timer,
   ChartBar,
-} from "phosphor-react-native";
+} from "@/components/icons";
 import { Text } from "@/components/ui";
 import { THEME_COLORS } from "@/lib/theme";
 import { useAccent } from "@/lib/theme/store";

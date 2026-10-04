@@ -127,6 +127,24 @@ export interface StatsTranslationSchema {
   excellentConsistency: string;
   keepItUp: string;
   needMoreData: string;
+  yourYear: string;
+  openYear: string;
+  dayOfYear: string;
+  dayProgress: string;
+  ofYearPct: string;
+  modeTime: string;
+  modeActivity: string;
+  layoutGrid: string;
+  layoutMonths: string;
+  activeDays: string;
+  perfectDays: string;
+  daysLeft: string;
+  legendLess: string;
+  legendMore: string;
+  legendNotYet: string;
+  brandNewUserMsg: string;
+  notYet: string;
+  notYetPlanned: string;
 }
 
 export interface YouTubeTranslationSchema {
@@ -162,5 +180,12 @@ export interface YouTubeTranslationSchema {
   watchedTill: string;
   savePosition: string;
   devPrintRows: string;
+  embeddingRestricted: string;
+  copyLink: string;
+  linkCopied: string;
+  addedLinks: string;
+  alreadyAdded: string;
+  noWatchInAppReason: string;
+  embedDetails: string;
 }
 

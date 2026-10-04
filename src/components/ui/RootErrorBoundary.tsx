@@ -1,6 +1,6 @@
 import React from "react";
 import { View } from "react-native";
-import { Warning, ArrowCounterClockwise } from "phosphor-react-native";
+import { Warning, ArrowCounterClockwise } from "@/components/icons";
 import { Text } from "./Text";
 import { Button } from "./Button";
 import { THEME_COLORS } from "@/lib/theme";

@@ -117,26 +117,7 @@ export const hinglishPlanner: PlannerTranslationSchema = {
   createTask: "Task Banayein",
 };
 
-export const hinglishStats: StatsTranslationSchema = {
-  title: "Aakde (Stats)",
-  overview: "Activity Overview",
-  completionRate: "Poora Hone Ki Dar",
-  currentStreak: "Chalti Streak",
-  focusTime: "Kul Focus Samay",
-  tasksDone: "Poore Kiye Tasks",
-  weeklyActivity: "Hafte Ki Activity",
-  range7d: "7D",
-  range30d: "30D",
-  rangeAll: "SABHI",
-  insights: "Insights",
-  habitsPerformance: "Habits Performance",
-  dayDetail: "Din Ka Vivaran",
-  noStatsData: "Activity Data Nahi Hai",
-  noStatsDesc: "Trends dekhne ke liye habits aur focus sessions poore karein.",
-  excellentConsistency: "Is hafte zabardast consistency rahi!",
-  keepItUp: "Isi tarah aage badhte rahein.",
-  needMoreData: "Insights unlock karne ke liye track karte rahein.",
-};
+export { hinglishStats } from "./translations-hi-stats";
 
 export const hinglishYouTube: YouTubeTranslationSchema = {
   title: "YouTube Links",
@@ -171,4 +152,11 @@ export const hinglishYouTube: YouTubeTranslationSchema = {
   watchedTill: "{time} tak dekhi",
   savePosition: "Position Save Karein",
   devPrintRows: "🛠 Print DB Rows (Dev)",
+  embeddingRestricted: "Video owner ne app me playback restrict kiya hai",
+  copyLink: "Link Copy Karein",
+  linkCopied: "Link copy ho gaya",
+  addedLinks: "{count} links add ho gaye",
+  alreadyAdded: "Pehle se added hai",
+  noWatchInAppReason: "App me nahi chalega (Restricted)",
+  embedDetails: "Details",
 };

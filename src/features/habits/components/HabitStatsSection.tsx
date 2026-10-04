@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { View } from "react-native";
-import { Fire, Trophy, Archive, Trash } from "phosphor-react-native";
+import { Fire, Trophy, Archive, Trash } from "@/components/icons";
 import { Haptics } from "@/core/utils/haptics";
 import type { Habit } from "../types";
 import { useHabitStats } from "../hooks";

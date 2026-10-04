@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { View } from "react-native";
 import { useRouter } from "expo-router";
-import { X, Sparkle } from "phosphor-react-native";
+import { X, Sparkle } from "@/components/icons";
 import { Screen, Text, Button } from "@/components/ui";
 import { THEME_COLORS } from "@/lib/theme";
 import { useHabits } from "@/features/habits";
@@ -27,7 +27,7 @@ export default function NewHabitModal() {
   };
 
   return (
-    <Screen scroll>
+    <Screen scroll keyboard>
       {/* Custom Modal Header */}
       <View className="flex-row items-center justify-between pt-2 pb-6 border-b border-border mb-6">
         <View>

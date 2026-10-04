@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Pressable } from "react-native";
-import { Check } from "phosphor-react-native";
+import { Check } from "@/components/icons";
 import { Haptics } from "@/core/utils/haptics";
 import { getMonthGrid, type DayTaskDots } from "../calendar";
 import { Text } from "@/components/ui";

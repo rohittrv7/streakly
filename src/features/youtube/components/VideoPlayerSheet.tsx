@@ -1,9 +1,12 @@
 import React, { useRef, useState } from "react";
 import { View, Linking } from "react-native";
+import * as Clipboard from "expo-clipboard";
 import YoutubePlayer, { type YoutubeIframeRef } from "react-native-youtube-iframe";
 import { Sheet, Button, Text } from "@/components/ui";
 import { formatTimestamp, buildOpenUrl } from "../utils";
 import type { TaskLink } from "../types";
+import { markEmbedFailed } from "../failed-embeds";
+import { useT } from "@/core/i18n";
 
 export interface VideoPlayerSheetProps {
   visible: boolean;
@@ -20,9 +23,12 @@ export function VideoPlayerSheet({
   onSavePosition,
   onMarkWatched,
 }: VideoPlayerSheetProps) {
+  const { t } = useT();
   const playerRef = useRef<YoutubeIframeRef>(null);
   const [playing, setPlaying] = useState(true);
   const [hasError, setHasError] = useState(false);
+  const [errorDetail, setErrorDetail] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
   const [currentTime, setCurrentTime] = useState<number | null>(null);
 
   if (!link || !link.externalId) return null;
@@ -52,17 +58,63 @@ export function VideoPlayerSheet({
     Linking.openURL(buildOpenUrl(link)).catch(() => {});
   };
 
+  const handleCopyLink = async () => {
+    await Clipboard.setStringAsync(buildOpenUrl(link));
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   const isPlaylist = link.kind === "playlist";
 
+  const getErrorMessage = (err: string | null) => {
+    if (!err) return t("youtube.embeddingRestricted");
+    if (err === "101" || err === "150" || err === "embed_not_allowed") {
+      return t("youtube.embeddingRestricted");
+    }
+    if (err === "153") {
+      return "Playback restricted (configuration/referrer issue: 153)";
+    }
+    if (err === "100" || err === "video_not_found") {
+      return t("youtube.errorNotFound");
+    }
+    if (err === "5" || err === "HTML5_error") {
+      return "HTML5 player error";
+    }
+    return t("youtube.embeddingRestricted");
+  };
+
   return (
-    <Sheet visible={visible} onClose={handleClose} title={link.title || "YouTube Player"} size="full">
+    <Sheet
+      visible={visible}
+      onClose={handleClose}
+      title={link.title || "YouTube Player"}
+      size={hasError ? "auto" : "full"}
+    >
       <View className="gap-4 pb-3">
         {hasError ? (
           <View className="p-4 bg-surface rounded-card border border-border items-center gap-3">
             <Text variant="body" className="text-center text-text-secondary">
-              This video cannot be played inside the app (embedding may be restricted by the owner).
+              {getErrorMessage(errorDetail)}
             </Text>
-            <Button variant="primary" title="Open in YouTube" onPress={openInBrowser} />
+            {errorDetail && (
+              <Text variant="caption" className="text-muted text-[11px]">
+                {t("youtube.embedDetails")}: {errorDetail}
+              </Text>
+            )}
+            <View className="w-full gap-2 mt-1">
+              <Button
+                variant="primary"
+                title={t("youtube.openInYouTube")}
+                onPress={openInBrowser}
+                className="w-full min-h-[44px]"
+              />
+              <Button
+                variant="secondary"
+                title={copied ? t("youtube.linkCopied") : t("youtube.copyLink")}
+                onPress={handleCopyLink}
+                className="w-full min-h-[44px]"
+              />
+            </View>
           </View>
         ) : (
           <View className="w-full aspect-video rounded-card overflow-hidden bg-black">
@@ -73,12 +125,16 @@ export function VideoPlayerSheet({
               videoId={isPlaylist ? undefined : link.externalId}
               playList={isPlaylist ? link.externalId : undefined}
               useLocalHTML
-              baseUrlOverride="https://www.youtube.com"
+              baseUrlOverride="https://www.youtube-nocookie.com"
               forceAndroidAutoplay
               webViewProps={{
                 androidLayerType: "hardware",
                 allowsFullscreenVideo: true,
                 mediaPlaybackRequiresUserAction: false,
+                originWhitelist: ["*"],
+                javaScriptEnabled: true,
+                domStorageEnabled: true,
+                allowsInlineMediaPlayback: true,
               }}
               initialPlayerParams={{
                 start: link.watchedTillSeconds || 0,
@@ -89,12 +145,14 @@ export function VideoPlayerSheet({
               onError={(err: string) => {
                 if (__DEV__) console.warn("[VideoPlayer] playback error:", err);
                 setHasError(true);
+                setErrorDetail(String(err));
+                markEmbedFailed(link.externalId);
               }}
             />
           </View>
         )}
 
-        {currentTime !== null && currentTime > 0 && onSavePosition && (
+        {!hasError && currentTime !== null && currentTime > 0 && onSavePosition && (
           <View className="flex-row items-center justify-between bg-surface p-3 rounded-card border border-border">
             <Text variant="caption">Paused at {formatTimestamp(currentTime)}</Text>
             <Button
@@ -109,7 +167,14 @@ export function VideoPlayerSheet({
           </View>
         )}
 
-        <Button variant="ghost" title="Open External in YouTube App" onPress={openInBrowser} />
+        {!hasError && (
+          <Button
+            variant="ghost"
+            title={t("youtube.openInYouTube")}
+            onPress={openInBrowser}
+            className="min-h-[44px]"
+          />
+        )}
       </View>
     </Sheet>
   );

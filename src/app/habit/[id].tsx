@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { View } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
-import { CaretLeft, Target } from "phosphor-react-native";
+import { CaretLeft, Target } from "@/components/icons";
 import { Screen, Text, Button } from "@/components/ui";
 import { THEME_COLORS } from "@/lib/theme";
 import { useHabit, useHabits } from "@/features/habits";
@@ -59,7 +59,7 @@ export default function HabitDetailsScreen() {
   };
 
   return (
-    <Screen scroll>
+    <Screen scroll keyboard>
       {/* Custom Header with Back Button */}
       <View className="flex-row items-center gap-3 pt-2 pb-6 border-b border-border mb-6">
         <Button
@@ -69,12 +69,12 @@ export default function HabitDetailsScreen() {
           onPress={() => router.back()}
           accessibilityLabel="Back"
         />
-        <View className="flex-1">
+        <View className="flex-1 min-w-0">
           <View className="flex-row items-center gap-1.5 mb-0.5">
             <Target size={13} color={habit.color} weight="fill" />
             <Text variant="label">EDIT ROUTINE</Text>
           </View>
-          <Text variant="title" numberOfLines={1}>{habit.name}</Text>
+          <Text variant="title" numberOfLines={2} ellipsizeMode="tail">{habit.name}</Text>
         </View>
       </View>
 

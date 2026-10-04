@@ -1,7 +1,7 @@
 import { todayStr, addDays, toDateStr } from "@/core/utils/dates";
 import { parseISO, eachDayOfInterval } from "date-fns";
 
-export type StatsRange = "7d" | "30d" | "90d";
+export type StatsRange = "7d" | "30d" | "90d" | "year";
 
 export interface DateRange {
   range: StatsRange;
@@ -18,6 +18,8 @@ export function getRangeDays(range: StatsRange): number {
       return 30;
     case "90d":
       return 90;
+    case "year":
+      return 365;
     default:
       return 7;
   }

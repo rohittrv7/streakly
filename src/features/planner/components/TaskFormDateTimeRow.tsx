@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Pressable } from "react-native";
-import { Calendar, Clock } from "phosphor-react-native";
+import { Calendar, Clock } from "@/components/icons";
 import { Text } from "@/components/ui";
 import { THEME_COLORS } from "@/lib/theme";
 import { useT } from "@/core/i18n";

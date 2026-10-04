@@ -1,6 +1,10 @@
+import React, { useEffect, useState } from "react";
 import {
   View,
   ScrollView,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
   type ViewProps,
   type ScrollViewProps,
   type RefreshControlProps,
@@ -30,6 +34,7 @@ export function useTabBarInset(): number {
 export interface ScreenProps extends ViewProps {
   children: React.ReactNode;
   scroll?: boolean;
+  keyboard?: boolean;
   withTabBarInset?: boolean;
   edges?: Edge[];
   className?: string;
@@ -41,6 +46,7 @@ export interface ScreenProps extends ViewProps {
 export function Screen({
   children,
   scroll = false,
+  keyboard = false,
   withTabBarInset = false,
   edges = ["top", "left", "right"],
   className,
@@ -50,26 +56,58 @@ export function Screen({
   ...props
 }: ScreenProps) {
   const insets = useSafeAreaInsets();
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+
+  useEffect(() => {
+    if (!keyboard) return;
+    const showSub = Keyboard.addListener(
+      Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow",
+      (e) => setKeyboardHeight(e.endCoordinates.height)
+    );
+    const hideSub = Keyboard.addListener(
+      Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide",
+      () => setKeyboardHeight(0)
+    );
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, [keyboard]);
+
   const bottomPadding = withTabBarInset
     ? calculateTabBarInset(insets.bottom)
     : 16;
+  const totalBottomPadding =
+    bottomPadding + (keyboardHeight > 0 ? keyboardHeight + 24 : 0);
 
-  if (scroll) {
+  if (scroll || keyboard) {
+    const scrollContent = (
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode={Platform.OS === "ios" ? "interactive" : "on-drag"}
+        refreshControl={refreshControl}
+        contentContainerStyle={{ paddingBottom: totalBottomPadding }}
+        contentContainerClassName={cn("px-screen pt-2", contentContainerClassName)}
+        {...scrollViewProps}
+      >
+        {children}
+      </ScrollView>
+    );
+
     return (
       <SafeAreaView
         edges={edges}
         className={cn("flex-1 bg-background", className)}
         {...props}
       >
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          refreshControl={refreshControl}
-          contentContainerStyle={{ paddingBottom: bottomPadding }}
-          contentContainerClassName={cn("px-screen pt-2", contentContainerClassName)}
-          {...scrollViewProps}
-        >
-          {children}
-        </ScrollView>
+        {keyboard ? (
+          <KeyboardAvoidingView behavior="padding" className="flex-1">
+            {scrollContent}
+          </KeyboardAvoidingView>
+        ) : (
+          scrollContent
+        )}
       </SafeAreaView>
     );
   }

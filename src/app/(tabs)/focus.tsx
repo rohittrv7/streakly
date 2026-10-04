@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { View, Pressable } from "react-native";
-import { Timer, GearSix } from "phosphor-react-native";
+import { Timer, GearSix } from "@/components/icons";
 import { Screen, Text, Stagger, Skeleton } from "@/components/ui";
 import { THEME_COLORS } from "@/lib/theme";
 import { plannerRepo } from "@/features/planner/repo";

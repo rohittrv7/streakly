@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Pressable } from "react-native";
-import { Clock, Play, DotsThreeVertical } from "phosphor-react-native";
+import { Clock, Play, DotsThreeVertical } from "@/components/icons";
 import { Haptics } from "@/core/utils/haptics";
 import type { TimelineItem } from "../utils";
 import { HabitIcon } from "@/features/habits/components/HabitIcon";

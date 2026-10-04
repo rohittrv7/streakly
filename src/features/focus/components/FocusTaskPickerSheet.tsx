@@ -2,7 +2,7 @@ import React from "react";
 import { View, ScrollView, Pressable } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import { Check, Target } from "phosphor-react-native";
+import { Check, Target } from "@/components/icons";
 import { Sheet, Text, Pill, Button } from "@/components/ui";
 import { THEME_COLORS, useAccent } from "@/lib/theme";
 import { CATEGORIES, CATEGORY_CONFIG } from "@/core/theme/categories";

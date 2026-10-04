@@ -6,7 +6,7 @@ import {
   PaintBrush,
   ArrowCounterClockwise,
   CaretRight,
-} from "phosphor-react-native";
+} from "@/components/icons";
 import { Card, Text, Sheet, Button } from "@/components/ui";
 import { THEME_COLORS } from "@/lib/theme";
 import { resetAndReseedDatabase } from "@/lib/db/seed";

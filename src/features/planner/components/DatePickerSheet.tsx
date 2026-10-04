@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { View, Pressable } from "react-native";
-import { CaretLeft, CaretRight } from "phosphor-react-native";
+import { CaretLeft, CaretRight } from "@/components/icons";
 import { parseISO, format } from "date-fns";
 import { Sheet, Button, Text } from "@/components/ui";
 import { MonthCalendar } from "./MonthCalendar";

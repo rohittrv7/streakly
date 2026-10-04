@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { View, TextInput } from "react-native";
-import { Key, ClipboardText, Trash, CheckCircle, WarningCircle, XCircle, WifiSlash } from "phosphor-react-native";
+import { Key, ClipboardText, Trash, CheckCircle, WarningCircle, XCircle, WifiSlash } from "@/components/icons";
 import * as Clipboard from "expo-clipboard";
 import { Card, Text, Button } from "@/components/ui";
 import { THEME_COLORS } from "@/lib/theme";

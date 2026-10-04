@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text } from "react-native";
-import { Trophy, Lightning, Target } from "phosphor-react-native";
+import { Trophy, Lightning, Target } from "@/components/icons";
 import { THEME_COLORS } from "@/lib/theme";
 import type { StatInsight } from "../types";
 

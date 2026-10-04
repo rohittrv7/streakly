@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { View } from "react-native";
 import { useRouter } from "expo-router";
-import { ArrowLeft, MagnifyingGlass } from "phosphor-react-native";
+import { ArrowLeft, MagnifyingGlass } from "@/components/icons";
 import {
   Screen, Text, Card, Button, Pill, Checkbox, ProgressRing,
   AnimatedNumber, Sheet, EmptyState, EmptyHabitsIllustration,

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { View } from "react-native";
-import { Trash, Copy } from "phosphor-react-native";
+import { Trash, Copy } from "@/components/icons";
 import { Button, Pill, Input } from "@/components/ui";
 import { THEME_COLORS } from "@/lib/theme";
 import { CATEGORY_COLORS } from "../calendar";

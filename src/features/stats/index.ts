@@ -23,3 +23,8 @@ export * from "./components/FocusStatsCard";
 export * from "./components/InsightChips";
 export * from "./components/StatsSkeleton";
 export * from "./components/StatsView";
+export * from "./year";
+export * from "./year-layout";
+export * from "./hooks-year";
+export * from "./components/YearDots";
+export * from "./components/YourYearCard";

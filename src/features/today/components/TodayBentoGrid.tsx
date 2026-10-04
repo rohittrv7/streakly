@@ -1,6 +1,6 @@
 import React from "react";
 import { View } from "react-native";
-import { Fire, CheckCircle, ListChecks, Timer } from "phosphor-react-native";
+import { Fire, CheckCircle, ListChecks, Timer } from "@/components/icons";
 import type { Habit } from "@/features/habits/types";
 import { Card, Text, AnimatedNumber, ProgressRing } from "@/components/ui";
 import { THEME_COLORS } from "@/lib/theme";

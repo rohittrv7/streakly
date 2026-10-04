@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { View, ScrollView, Pressable } from "react-native";
-import { X, PencilSimple, Clock, Calendar, WarningCircle } from "phosphor-react-native";
+import { X, PencilSimple, Clock, Calendar, WarningCircle } from "@/components/icons";
 import { Haptics } from "@/core/utils/haptics";
 import { Text, StrikeText, Checkbox, Button, Skeleton, CategoryChip } from "@/components/ui";
 import { THEME_COLORS } from "@/lib/theme";

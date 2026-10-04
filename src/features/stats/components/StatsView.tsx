@@ -6,6 +6,7 @@ import Animated, {
   useReducedMotion,
 } from "react-native-reanimated";
 import { OverallHeroCard } from "./OverallHeroCard";
+import { YourYearCard } from "./YourYearCard";
 import { StatCard } from "./StatCard";
 import { LineChart } from "./LineChart";
 import { Heatmap } from "./Heatmap";
@@ -49,6 +50,9 @@ export function StatsView({ data, highlightToday }: StatsViewProps) {
         delta={deltaPercent}
         range={range.range}
       />
+
+      {/* Your Year Card */}
+      <YourYearCard />
 
       {/* Row of two StatCards: Current top streak and best streak ever */}
       <View className="flex-row gap-3">

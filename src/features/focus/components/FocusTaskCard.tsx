@@ -10,7 +10,7 @@ import {
   Book,
   Briefcase,
   Bookmark,
-} from "phosphor-react-native";
+} from "@/components/icons";
 import { Card, Text, CategoryChip } from "@/components/ui";
 import { THEME_COLORS } from "@/lib/theme";
 import { getCategoryConfig } from "@/core/theme/categories";

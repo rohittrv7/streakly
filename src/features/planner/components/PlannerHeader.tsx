@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Pressable } from "react-native";
-import { CaretLeft, CaretRight, CalendarPlus, Calendar } from "phosphor-react-native";
+import { CaretLeft, CaretRight, CalendarPlus, Calendar } from "@/components/icons";
 import { Text, Button } from "@/components/ui";
 import { THEME_COLORS } from "@/lib/theme";
 import { useT } from "@/core/i18n";

@@ -117,26 +117,7 @@ export const enPlanner: PlannerTranslationSchema = {
   createTask: "Create Task",
 };
 
-export const enStats: StatsTranslationSchema = {
-  title: "Statistics",
-  overview: "Activity Overview",
-  completionRate: "Completion Rate",
-  currentStreak: "Active Streak",
-  focusTime: "Total Focus Time",
-  tasksDone: "Tasks Done",
-  weeklyActivity: "Weekly Activity",
-  range7d: "7D",
-  range30d: "30D",
-  rangeAll: "ALL",
-  insights: "Insights",
-  habitsPerformance: "Habits Performance",
-  dayDetail: "Day Detail",
-  noStatsData: "No Activity Data",
-  noStatsDesc: "Complete habits and focus sessions to view insightful trends and progress.",
-  excellentConsistency: "Excellent consistency this week!",
-  keepItUp: "Keep the momentum going.",
-  needMoreData: "Keep tracking to unlock personalized insights.",
-};
+export { enStats } from "./translations-en-stats";
 
 export const enYouTube: YouTubeTranslationSchema = {
   title: "YouTube Links",
@@ -171,4 +152,11 @@ export const enYouTube: YouTubeTranslationSchema = {
   watchedTill: "Watched till {time}",
   savePosition: "Save Position",
   devPrintRows: "🛠 Print DB Rows (Dev)",
+  embeddingRestricted: "The owner only allows this video on YouTube",
+  copyLink: "Copy Link",
+  linkCopied: "Link copied to clipboard",
+  addedLinks: "Added {count} links",
+  alreadyAdded: "Already added",
+  noWatchInAppReason: "Watch in app (Embedding restricted)",
+  embedDetails: "Details",
 };

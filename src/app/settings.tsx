@@ -1,7 +1,7 @@
 import React from "react";
 import { View } from "react-native";
 import { useRouter } from "expo-router";
-import { CaretLeft, Gear } from "phosphor-react-native";
+import { CaretLeft, Gear } from "@/components/icons";
 import { Screen, Text, Button, Stagger } from "@/components/ui";
 import { THEME_COLORS } from "@/lib/theme";
 import { useAccent } from "@/lib/theme/store";
@@ -21,7 +21,7 @@ export default function SettingsScreen() {
   const { accent } = useAccent();
 
   return (
-    <Screen scroll>
+    <Screen scroll keyboard>
       <Stagger delay={50}>
         {/* Header with Back Button */}
         <View className="flex-row items-center gap-3 pt-2 pb-5 border-b border-border mb-6 min-h-[48px]">
@@ -32,12 +32,12 @@ export default function SettingsScreen() {
             onPress={() => router.back()}
             accessibilityLabel="Back"
           />
-          <View className="flex-1">
+          <View className="flex-1 min-w-0">
             <View className="flex-row items-center gap-1.5 mb-0.5">
               <Gear size={13} color={accent.hex} weight="fill" />
               <Text variant="label">{t("settings.preferences")}</Text>
             </View>
-            <Text variant="title">{t("settings.title")}</Text>
+            <Text variant="title" numberOfLines={1}>{t("settings.title")}</Text>
           </View>
         </View>
 

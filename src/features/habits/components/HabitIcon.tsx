@@ -24,7 +24,7 @@ import {
   Globe,
   Sneaker,
   Bed,
-} from "phosphor-react-native";
+} from "@/components/icons";
 import { THEME_COLORS } from "@/lib/theme";
 
 export const DEFAULT_HABIT_ICON = "target" as const;

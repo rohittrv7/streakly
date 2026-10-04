@@ -1,7 +1,7 @@
 import React from "react";
 import { View } from "react-native";
 import { Sheet, Text, Button } from "@/components/ui";
-import { Bell } from "phosphor-react-native";
+import { Bell } from "@/components/icons";
 import { THEME_COLORS } from "@/lib/theme";
 import {
   requestNotificationPermission,

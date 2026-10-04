@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { View, Image, Pressable } from "react-native";
-import { DotsThreeVertical, Clock, Note, ArrowClockwise, Copy, Trash } from "phosphor-react-native";
+import { DotsThreeVertical, Clock, Note, ArrowClockwise, Copy, Trash } from "@/components/icons";
 import * as Clipboard from "expo-clipboard";
 import { Haptics } from "@/core/utils/haptics";
 import { Card, Text, StrikeText, Checkbox, Sheet, Button } from "@/components/ui";

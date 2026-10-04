@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { View } from "react-native";
 import { useRouter } from "expo-router";
-import { Plus, Target } from "phosphor-react-native";
+import { Plus, Target } from "@/components/icons";
 import { Screen, Text, Button, EmptyState, Stagger, Skeleton } from "@/components/ui";
 import { THEME_COLORS } from "@/lib/theme";
 import { useHabits } from "@/features/habits";
