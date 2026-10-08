@@ -2,6 +2,7 @@ import React from "react";
 import { View, Pressable } from "react-native";
 import { Text, Toggle } from "@/components/ui";
 import { useTranslation } from "@/core/i18n";
+import { formatTime } from "@/core/utils/time";
 import type { NotificationSettings } from "@/lib/notifications";
 
 interface Props {
@@ -58,7 +59,7 @@ export function NotificationCategoryToggles({
               className="px-2.5 py-1 rounded-lg bg-surface border border-border"
             >
               <Text variant="caption" className="font-bold text-primary">
-                {settings.eveningNudgeTime}
+                {formatTime(settings.eveningNudgeTime)}
               </Text>
             </Pressable>
           )}
@@ -82,7 +83,7 @@ export function NotificationCategoryToggles({
               className="px-2.5 py-1 rounded-lg bg-surface border border-border"
             >
               <Text variant="caption" className="font-bold text-primary">
-                {settings.morningBriefingTime}
+                {formatTime(settings.morningBriefingTime)}
               </Text>
             </Pressable>
           )}

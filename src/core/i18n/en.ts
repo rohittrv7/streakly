@@ -82,9 +82,8 @@ export const en: TranslationSchema = {
     developer: "Developer Tools",
     uiGallery: "UI Component Gallery",
     reseed: "Reset and Reseed Demo Data",
-    youtubeApiKey: "YouTube API Key (Optional)",
-    youtubeApiKeyHelp:
-      "Import full playlists with videos, titles, and durations. Stored securely on your device.",
+    use24Hour: "24-Hour Time",
+    use24HourHelp: "Display times in 24-hour format instead of 12-hour AM/PM",
     appLanguage: "App Language",
     streakSaved: "Changes saved automatically",
   },

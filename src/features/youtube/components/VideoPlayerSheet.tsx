@@ -1,12 +1,15 @@
-import React, { useRef, useState } from "react";
-import { View, Linking } from "react-native";
+import React, { useRef, useState, useEffect, useReducer, useCallback } from "react";
+import { View, Linking, BackHandler } from "react-native";
 import * as Clipboard from "expo-clipboard";
+import * as Network from "expo-network";
 import YoutubePlayer, { type YoutubeIframeRef } from "react-native-youtube-iframe";
 import { Sheet, Button, Text } from "@/components/ui";
 import { formatTimestamp, buildOpenUrl } from "../utils";
 import type { TaskLink } from "../types";
 import { markEmbedFailed } from "../failed-embeds";
 import { useT } from "@/core/i18n";
+import { playerReducer, isAllowedPlayerUrl } from "../player-machine";
+import { VideoPlayerLoadingOverlay, VideoPlayerMessageCard } from "./VideoPlayerViews";
 
 export interface VideoPlayerSheetProps {
   visible: boolean;
@@ -24,109 +27,129 @@ export function VideoPlayerSheet({
   onMarkWatched,
 }: VideoPlayerSheetProps) {
   const { t } = useT();
+  // Root cause: playerRef.current.getCurrentTime() hangs when WebView hasn't loaded.
+  // Fix: only call getCurrentTime when state === "ready", track readiness separately.
   const playerRef = useRef<YoutubeIframeRef>(null);
-  const [playing, setPlaying] = useState(true);
-  const [hasError, setHasError] = useState(false);
+  const timeoutTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const isPlayerReadyRef = useRef(false);
+
+  const [state, dispatch] = useReducer(playerReducer, "idle");
   const [errorDetail, setErrorDetail] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
-  const [currentTime, setCurrentTime] = useState<number | null>(null);
+  const [saveSeconds, setSaveSeconds] = useState<number | null>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
-  if (!link || !link.externalId) return null;
+  const checkAndOpen = useCallback(async () => {
+    isPlayerReadyRef.current = false;
+    try {
+      const net = await Network.getNetworkStateAsync();
+      const connected = Boolean(net.isConnected && net.isInternetReachable !== false);
+      dispatch({ type: "OPEN", isConnected: connected });
+    } catch {
+      dispatch({ type: "OPEN", isConnected: true });
+    }
+  }, []);
 
-  const handleClose = async () => {
-    setPlaying(false);
-    if (playerRef.current) {
+  useEffect(() => {
+    if (visible && link?.externalId) {
+      setSaveSeconds(null);
+      checkAndOpen();
+    } else {
+      dispatch({ type: "CLOSE" });
+    }
+  }, [visible, link?.externalId, checkAndOpen]);
+
+  // 10-second load timeout
+  useEffect(() => {
+    if (state === "loading") {
+      timeoutTimerRef.current = setTimeout(() => dispatch({ type: "TIMEOUT" }), 10_000);
+    } else {
+      if (timeoutTimerRef.current) {
+        clearTimeout(timeoutTimerRef.current);
+        timeoutTimerRef.current = null;
+      }
+    }
+    return () => {
+      if (timeoutTimerRef.current) clearTimeout(timeoutTimerRef.current);
+    };
+  }, [state]);
+
+  // Root cause fix: wrap close so getCurrentTime() is only called when the player is ready.
+  const handleClose = useCallback(async () => {
+    dispatch({ type: "CLOSE" });
+    if (isPlayerReadyRef.current && playerRef.current) {
       try {
         const time = await playerRef.current.getCurrentTime();
-        if (time && time > 0) {
-          setCurrentTime(Math.floor(time));
-        }
+        if (time && time > 0) setSaveSeconds(Math.floor(time));
       } catch {
-        // Ignored
+        // ignore - player may have already unloaded
       }
     }
     onClose();
-  };
+  }, [onClose]);
 
-  const handleStateChange = (state: string) => {
-    if (state === "ended" && onMarkWatched) {
-      onMarkWatched();
-    }
-  };
+  // BackHandler: exits fullscreen first, then closes sheet
+  useEffect(() => {
+    if (!visible) return;
+    const sub = BackHandler.addEventListener("hardwareBackPress", () => {
+      if (isFullscreen) {
+        setIsFullscreen(false);
+        return true;
+      }
+      handleClose();
+      return true;
+    });
+    return () => sub.remove();
+  }, [visible, isFullscreen, handleClose]);
 
-  const openInBrowser = () => {
-    Linking.openURL(buildOpenUrl(link)).catch(() => {});
-  };
-
-  const handleCopyLink = async () => {
-    await Clipboard.setStringAsync(buildOpenUrl(link));
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
+  if (!link?.externalId) return null;
 
   const isPlaylist = link.kind === "playlist";
-
-  const getErrorMessage = (err: string | null) => {
-    if (!err) return t("youtube.embeddingRestricted");
-    if (err === "101" || err === "150" || err === "embed_not_allowed") {
-      return t("youtube.embeddingRestricted");
-    }
-    if (err === "153") {
-      return "Playback restricted (configuration/referrer issue: 153)";
-    }
-    if (err === "100" || err === "video_not_found") {
-      return t("youtube.errorNotFound");
-    }
-    if (err === "5" || err === "HTML5_error") {
-      return "HTML5 player error";
-    }
-    return t("youtube.embeddingRestricted");
-  };
+  const isErrorOrOffline = state === "offline" || state === "timeout" || state === "error";
+  // Root cause fix: unmount WebView when state is closed/idle/error/offline to prevent freeze
+  const shouldMountPlayer = state === "loading" || state === "ready";
 
   return (
     <Sheet
       visible={visible}
       onClose={handleClose}
       title={link.title || "YouTube Player"}
-      size={hasError ? "auto" : "full"}
+      size={isErrorOrOffline ? "auto" : "full"}
     >
       <View className="gap-4 pb-3">
-        {hasError ? (
-          <View className="p-4 bg-surface rounded-card border border-border items-center gap-3">
-            <Text variant="body" className="text-center text-text-secondary">
-              {getErrorMessage(errorDetail)}
-            </Text>
-            {errorDetail && (
-              <Text variant="caption" className="text-muted text-[11px]">
-                {t("youtube.embedDetails")}: {errorDetail}
-              </Text>
+        {isErrorOrOffline ? (
+          <VideoPlayerMessageCard
+            state={state}
+            errorDetail={errorDetail}
+            copied={copied}
+            onRetry={checkAndOpen}
+            onOpenExternal={() => Linking.openURL(buildOpenUrl(link)).catch(() => {})}
+            onCopyLink={async () => {
+              await Clipboard.setStringAsync(buildOpenUrl(link));
+              setCopied(true);
+              setTimeout(() => setCopied(false), 2000);
+            }}
+            onClose={handleClose}
+          />
+        ) : shouldMountPlayer ? (
+          <View className="w-full aspect-video rounded-card overflow-hidden bg-black relative">
+            {state === "loading" && (
+              <VideoPlayerLoadingOverlay thumbnailUrl={link.thumbnailUrl} />
             )}
-            <View className="w-full gap-2 mt-1">
-              <Button
-                variant="primary"
-                title={t("youtube.openInYouTube")}
-                onPress={openInBrowser}
-                className="w-full min-h-[44px]"
-              />
-              <Button
-                variant="secondary"
-                title={copied ? t("youtube.linkCopied") : t("youtube.copyLink")}
-                onPress={handleCopyLink}
-                className="w-full min-h-[44px]"
-              />
-            </View>
-          </View>
-        ) : (
-          <View className="w-full aspect-video rounded-card overflow-hidden bg-black">
             <YoutubePlayer
               ref={playerRef}
               height={220}
-              play={playing}
+              play={state === "ready"}
               videoId={isPlaylist ? undefined : link.externalId}
               playList={isPlaylist ? link.externalId : undefined}
               useLocalHTML
               baseUrlOverride="https://www.youtube-nocookie.com"
               forceAndroidAutoplay
+              onReady={() => {
+                isPlayerReadyRef.current = true;
+                dispatch({ type: "READY" });
+              }}
+              onFullScreenChange={setIsFullscreen}
               webViewProps={{
                 androidLayerType: "hardware",
                 allowsFullscreenVideo: true,
@@ -135,43 +158,52 @@ export function VideoPlayerSheet({
                 javaScriptEnabled: true,
                 domStorageEnabled: true,
                 allowsInlineMediaPlayback: true,
+                setSupportMultipleWindows: false,
+                onShouldStartLoadWithRequest: (req: { url: string }) => {
+                  const check = isAllowedPlayerUrl(req.url);
+                  if (!check.allowed && check.openExternal) {
+                    Linking.openURL(req.url).catch(() => {});
+                  }
+                  return check.allowed;
+                },
+                onError: () => dispatch({ type: "ERROR", error: "WebView load error" }),
+                onHttpError: (e: { nativeEvent: { statusCode: number } }) =>
+                  dispatch({ type: "ERROR", error: `HTTP ${e.nativeEvent.statusCode}` }),
+                onRenderProcessGone: () =>
+                  dispatch({ type: "ERROR", error: "Process terminated" }),
               }}
               initialPlayerParams={{
-                start: link.watchedTillSeconds || 0,
+                start: link.watchedTillSeconds ?? 0,
                 preventFullScreen: false,
                 rel: false,
               }}
-              onChangeState={handleStateChange}
+              onChangeState={(s: string) => { if (s === "ended" && onMarkWatched) onMarkWatched(); }}
               onError={(err: string) => {
-                if (__DEV__) console.warn("[VideoPlayer] playback error:", err);
-                setHasError(true);
                 setErrorDetail(String(err));
+                dispatch({ type: "ERROR", error: String(err) });
                 markEmbedFailed(link.externalId);
               }}
             />
           </View>
-        )}
+        ) : null}
 
-        {!hasError && currentTime !== null && currentTime > 0 && onSavePosition && (
+        {saveSeconds !== null && saveSeconds > 0 && onSavePosition && (
           <View className="flex-row items-center justify-between bg-surface p-3 rounded-card border border-border">
-            <Text variant="caption">Paused at {formatTimestamp(currentTime)}</Text>
+            <Text variant="caption">Paused at {formatTimestamp(saveSeconds)}</Text>
             <Button
               variant="secondary"
               size="sm"
-              title={`Save at ${formatTimestamp(currentTime)}`}
-              onPress={() => {
-                onSavePosition(currentTime);
-                setCurrentTime(null);
-              }}
+              title={`Save at ${formatTimestamp(saveSeconds)}`}
+              onPress={() => { onSavePosition(saveSeconds); setSaveSeconds(null); }}
             />
           </View>
         )}
 
-        {!hasError && (
+        {!isErrorOrOffline && (
           <Button
             variant="ghost"
             title={t("youtube.openInYouTube")}
-            onPress={openInBrowser}
+            onPress={() => Linking.openURL(buildOpenUrl(link)).catch(() => {})}
             className="min-h-[44px]"
           />
         )}

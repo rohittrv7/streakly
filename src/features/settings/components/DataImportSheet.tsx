@@ -3,6 +3,8 @@ import { View } from "react-native";
 import { Warning, FileArrowUp } from "@/components/icons";
 import { Sheet, Text, Button } from "@/components/ui";
 import { THEME_COLORS } from "@/lib/theme";
+import { formatTime } from "@/core/utils/time";
+import { format } from "date-fns";
 import { type ValidationResult } from "../backup/types";
 
 interface DataImportSheetProps {
@@ -22,7 +24,9 @@ export function DataImportSheet({
 }: DataImportSheetProps) {
   if (!validation || !validation.counts) return null;
   const { counts, exportedAt } = validation;
-  const dateFormatted = exportedAt ? new Date(exportedAt).toLocaleDateString() : "Unknown";
+  const dateFormatted = exportedAt
+    ? `${new Date(exportedAt).toLocaleDateString()} ${formatTime(format(new Date(exportedAt), "HH:mm"))}`
+    : "Unknown";
 
   return (
     <Sheet visible={visible} onClose={onClose} title="Import Backup" size="tall">

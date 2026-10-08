@@ -74,6 +74,13 @@ export const hinglishHabits: HabitsTranslationSchema = {
   archiveHabit: "Habit Archive Karein",
   archiveConfirm: "Kya aap is habit ko archive karna chahte hain?",
   restDay: "Aaram Ka Din",
+  reminder: "Reminder",
+  noReminder: "Koi reminder nahi",
+  removeReminder: "Reminder hatayein",
+  reminderMorning: "Subah",
+  reminderAfternoon: "Dopahar",
+  reminderEvening: "Shaam",
+  reminderNight: "Raat",
 };
 
 export const hinglishPlanner: PlannerTranslationSchema = {

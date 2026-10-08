@@ -85,9 +85,8 @@ export const hinglish: TranslationSchema = {
     developer: "Developer Tools",
     uiGallery: "UI Component Gallery",
     reseed: "Demo Data Reset Karein",
-    youtubeApiKey: "YouTube API Key (Optional)",
-    youtubeApiKeyHelp:
-      "Playlist videos, titles aur durations ke saath import karein. Phone me secure rehti hai.",
+    use24Hour: "24-Hour Samay",
+    use24HourHelp: "12-ghante AM/PM ke bajaye 24-ghante format use karein",
     appLanguage: "App Ki Bhasha",
     streakSaved: "Badlav apne aap save ho gaye",
   },

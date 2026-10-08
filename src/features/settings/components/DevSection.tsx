@@ -15,10 +15,12 @@ import { useHabitsStore } from "@/features/habits/store";
 import { NotificationDevSection } from "./NotificationDevSection";
 import { useT } from "@/core/i18n";
 import { Haptics } from "@/core/utils/haptics";
+import { getDevKeyDiagnostics } from "@/features/youtube/api-key";
 
 export function DevSection() {
   const router = useRouter();
   const { t } = useT();
+  const keyDiag = getDevKeyDiagnostics();
   const [reseedSheetOpen, setReseedSheetOpen] = useState(false);
   const [reseeding, setReseeding] = useState(false);
   const [stressSeeding, setStressSeeding] = useState(false);
@@ -127,6 +129,14 @@ export function DevSection() {
           </View>
           <CaretRight size={18} color={THEME_COLORS.text.muted} weight="bold" />
         </Pressable>
+
+        {/* YouTube API Key Diagnostic Row */}
+        <View className="pt-3 border-t border-border flex-row items-center justify-between min-h-[44px]">
+          <View className="flex-1 pr-2">
+            <Text variant="body" className="font-medium text-text-primary">YouTube Key Status</Text>
+            <Text variant="caption" className="text-text-muted">{keyDiag.display}</Text>
+          </View>
+        </View>
       </Card>
 
       {/* Notification Debug Panel */}

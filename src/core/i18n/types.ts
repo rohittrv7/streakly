@@ -86,8 +86,8 @@ export interface TranslationSchema {
     developer: string;
     uiGallery: string;
     reseed: string;
-    youtubeApiKey: string;
-    youtubeApiKeyHelp: string;
+    use24Hour: string;
+    use24HourHelp: string;
     appLanguage: string;
     streakSaved: string;
   };

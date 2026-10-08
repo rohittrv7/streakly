@@ -4,6 +4,7 @@ import { Calendar, Clock } from "@/components/icons";
 import { Text } from "@/components/ui";
 import { THEME_COLORS } from "@/lib/theme";
 import { useT } from "@/core/i18n";
+import { formatTime } from "@/core/utils/time";
 
 export interface TaskFormDateTimeRowProps {
   date: string;
@@ -47,7 +48,7 @@ export function TaskFormDateTimeRow({
           <Text variant="label" className="mb-1">{t("planner.startTime").toUpperCase()}</Text>
           <View className="flex-row items-center gap-2">
             <Clock size={16} color={THEME_COLORS.text.muted} />
-            <Text variant="body" className="font-semibold text-sm">{startTime || t("today.anytime")}</Text>
+            <Text variant="body" className="font-semibold text-sm">{startTime ? formatTime(startTime) : t("today.anytime")}</Text>
           </View>
         </Pressable>
 
@@ -58,7 +59,7 @@ export function TaskFormDateTimeRow({
           <Text variant="label" className="mb-1">{t("planner.duration").toUpperCase()}</Text>
           <View className="flex-row items-center gap-2">
             <Clock size={16} color={THEME_COLORS.text.muted} />
-            <Text variant="body" className="font-semibold text-sm">{endTime || "--:--"}</Text>
+            <Text variant="body" className="font-semibold text-sm">{endTime ? formatTime(endTime) : "--:--"}</Text>
           </View>
         </Pressable>
       </View>

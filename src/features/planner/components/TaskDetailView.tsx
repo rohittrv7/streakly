@@ -10,6 +10,7 @@ import { todayStr } from "@/core/utils/dates";
 import { YouTubeSection } from "@/features/youtube/components/YouTubeSection";
 import type { TaskCategory } from "../types";
 import { useT } from "@/core/i18n";
+import { formatTimeRange } from "@/core/utils/time";
 
 export interface TaskDetailViewProps {
   taskId: string;
@@ -102,7 +103,7 @@ export function TaskDetailView({ taskId, onClose, onEdit }: TaskDetailViewProps)
               <View className="flex-row items-center gap-1 bg-surface px-2.5 py-1 rounded-pill border border-border">
                 <Clock size={12} color={THEME_COLORS.text.muted} />
                 <Text variant="caption" className="text-[11px] font-bold text-text-secondary">
-                  {task!.startTime || "--:--"} - {task!.endTime || "--:--"}
+                  {formatTimeRange(task!.startTime, task!.endTime)}
                 </Text>
               </View>
             )}

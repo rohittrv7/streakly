@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Pressable } from "react-native";
 import { Text, Toggle } from "@/components/ui";
+import { formatTime } from "@/core/utils/time";
 
 interface Props {
   enabled: boolean;
@@ -37,7 +38,7 @@ export function NotificationQuietHoursSection({
           >
             <Text variant="caption" className="text-xs text-text-muted">Start</Text>
             <Text variant="body" className="font-bold text-text-primary">
-              {startTime}
+              {formatTime(startTime)}
             </Text>
           </Pressable>
           <Text variant="caption" className="text-text-muted">to</Text>
@@ -47,7 +48,7 @@ export function NotificationQuietHoursSection({
           >
             <Text variant="caption" className="text-xs text-text-muted">End</Text>
             <Text variant="body" className="font-bold text-text-primary">
-              {endTime}
+              {formatTime(endTime)}
             </Text>
           </Pressable>
         </View>

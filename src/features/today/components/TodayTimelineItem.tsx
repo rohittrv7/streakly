@@ -7,6 +7,7 @@ import { HabitIcon } from "@/features/habits/components/HabitIcon";
 import { StrikeText, Checkbox, Text, Card } from "@/components/ui";
 import { THEME_COLORS } from "@/lib/theme";
 import { useLinksProgress } from "@/features/youtube";
+import { formatTime } from "@/core/utils/time";
 
 export interface TodayTimelineItemProps {
   item: TimelineItem;
@@ -81,7 +82,7 @@ export function TodayTimelineItem({
               <View className="flex-row items-center gap-1 bg-elevated px-1.5 py-0.5 rounded-pill border border-border">
                 <Clock size={10} color={THEME_COLORS.text.muted} />
                 <Text variant="caption" className="text-[10px] text-text-secondary">
-                  {item.time}
+                  {formatTime(item.time)}
                 </Text>
               </View>
             )}

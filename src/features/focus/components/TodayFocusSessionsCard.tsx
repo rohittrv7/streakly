@@ -5,6 +5,7 @@ import { DotsThreeVertical, Trash } from "@/components/icons";
 import { Card, Text, Sheet, Button } from "@/components/ui";
 import { THEME_COLORS } from "@/lib/theme";
 import { usePlannerStore } from "@/features/planner/store";
+import { formatTime } from "@/core/utils/time";
 import type { FocusSession } from "../types";
 import { useT } from "@/core/i18n";
 
@@ -35,7 +36,8 @@ export function TodayFocusSessionsCard({
 
   const formatSessionTime = (isoString: string) => {
     try {
-      return format(parseISO(isoString), "h:mm a");
+      const d = parseISO(isoString);
+      return formatTime(format(d, "HH:mm"));
     } catch {
       return "--:--";
     }

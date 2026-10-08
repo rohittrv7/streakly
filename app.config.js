@@ -35,6 +35,10 @@ module.exports = ({ config }) => {
 
   return {
     ...baseConfig,
+    extra: {
+      ...(baseConfig.extra || {}),
+      youtubeApiKey: process.env.EXPO_PUBLIC_YOUTUBE_API_KEY || "",
+    },
     plugins: [...existingPlugins, buildPropertiesPlugin],
   };
 };

@@ -1,45 +1,34 @@
 import React, { useState } from "react";
 import { View, Pressable } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Bell, Clock } from "@/components/icons";
 import { Haptics } from "@/core/utils/haptics";
 import type { Habit, HabitFrequencyType } from "../types";
 import { HabitVisualPickers } from "./HabitVisualPickers";
 import { HabitStatsSection } from "./HabitStatsSection";
 import { Text, Input, Button, Pill } from "@/components/ui";
+import { TimePickerSheet, type TimePickerPreset } from "@/features/planner/components/TimePickerSheet";
+import { formatTime } from "@/core/utils/time";
 import { THEME_COLORS } from "@/lib/theme";
 import { useT } from "@/core/i18n";
 
 const WEEKDAYS = [
-  { day: 1, label: "M" },
-  { day: 2, label: "T" },
-  { day: 3, label: "W" },
-  { day: 4, label: "T" },
-  { day: 5, label: "F" },
-  { day: 6, label: "S" },
-  { day: 0, label: "S" },
+  { day: 1, label: "M" }, { day: 2, label: "T" }, { day: 3, label: "W" },
+  { day: 4, label: "T" }, { day: 5, label: "F" }, { day: 6, label: "S" }, { day: 0, label: "S" },
 ];
 
 export interface HabitFormProps {
   initialHabit?: Habit | null;
   onSubmit: (data: {
-    name: string;
-    icon: string;
-    color: string;
-    frequencyType: HabitFrequencyType;
-    weekdays: number[];
-    timesPerWeek: number | null;
-    reminderTime: string | null;
+    name: string; icon: string; color: string;
+    frequencyType: HabitFrequencyType; weekdays: number[];
+    timesPerWeek: number | null; reminderTime: string | null;
   }) => Promise<void>;
   onArchive?: () => Promise<void>;
   onDelete?: () => Promise<void>;
 }
 
-export function HabitForm({
-  initialHabit,
-  onSubmit,
-  onArchive,
-  onDelete,
-}: HabitFormProps) {
+export function HabitForm({ initialHabit, onSubmit, onArchive, onDelete }: HabitFormProps) {
   const { t } = useT();
   const isEditing = Boolean(initialHabit);
   const insets = useSafeAreaInsets();
@@ -52,8 +41,16 @@ export function HabitForm({
   const [weekdays, setWeekdays] = useState<number[]>(initialHabit?.weekdays?.length ? initialHabit.weekdays : [1, 2, 3, 4, 5]);
   const [timesPerWeek, setTimesPerWeek] = useState<number>(initialHabit?.timesPerWeek || 3);
   const [reminderTime, setReminderTime] = useState(initialHabit?.reminderTime || "");
+  const [pickerVisible, setPickerVisible] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  const presets: TimePickerPreset[] = [
+    { label: t("habits.reminderMorning") || "Morning", time: "07:00" },
+    { label: t("habits.reminderAfternoon") || "Afternoon", time: "13:00" },
+    { label: t("habits.reminderEvening") || "Evening", time: "19:00" },
+    { label: t("habits.reminderNight") || "Night", time: "21:00" },
+  ];
 
   const toggleWeekday = (day: number) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
@@ -86,10 +83,7 @@ export function HabitForm({
     setSubmitting(true);
     try {
       await onSubmit({
-        name: trimmed,
-        icon,
-        color,
-        frequencyType: freqType,
+        name: trimmed, icon, color, frequencyType: freqType,
         weekdays: freqType === "specific_days" ? weekdays : [],
         timesPerWeek: freqType === "times_per_week" ? timesPerWeek : null,
         reminderTime: reminderTime.trim() || null,
@@ -105,30 +99,14 @@ export function HabitForm({
 
   return (
     <View style={{ paddingBottom: bottomPadding }} className="gap-5">
-      {/* 1. Name Input */}
       <View>
         <Text variant="label" className="mb-2">{t("habits.habitName").toUpperCase()}</Text>
-        <Input
-          placeholder="e.g. Read 15 pages, Morning Run"
-          value={name}
-          onChangeText={(val) => {
-            setName(val);
-            if (error) setError(null);
-          }}
-          maxLength={40}
-        />
+        <Input placeholder="e.g. Read 15 pages, Morning Run" value={name} onChangeText={(val) => { setName(val); if (error) setError(null); }} maxLength={40} />
         {error && <Text variant="caption" className="text-coral mt-1.5">{error}</Text>}
       </View>
 
-      {/* 2. Visual Pickers (Color & Icon) */}
-      <HabitVisualPickers
-        color={color}
-        onColorChange={setColor}
-        icon={icon}
-        onIconChange={setIcon}
-      />
+      <HabitVisualPickers color={color} onColorChange={setColor} icon={icon} onIconChange={setIcon} />
 
-      {/* 3. Frequency Selector */}
       <View>
         <Text variant="label" className="mb-2">{t("habits.frequency").toUpperCase()}</Text>
         <View className="flex-row gap-2 mb-3">
@@ -142,15 +120,8 @@ export function HabitForm({
             {WEEKDAYS.map(({ day, label }) => {
               const active = weekdays.includes(day);
               return (
-                <Pressable
-                  key={day}
-                  onPress={() => toggleWeekday(day)}
-                  style={{ backgroundColor: active ? color : THEME_COLORS.elevated }}
-                  className="w-9 h-9 rounded-full items-center justify-center border border-border"
-                >
-                  <Text className={`text-xs font-bold ${active ? "text-background" : "text-text-secondary"}`}>
-                    {label}
-                  </Text>
+                <Pressable key={day} onPress={() => toggleWeekday(day)} style={{ backgroundColor: active ? color : THEME_COLORS.elevated }} className="w-9 h-9 rounded-full items-center justify-center border border-border">
+                  <Text className={`text-xs font-bold ${active ? "text-background" : "text-text-secondary"}`}>{label}</Text>
                 </Pressable>
               );
             })}
@@ -169,25 +140,43 @@ export function HabitForm({
         )}
       </View>
 
-      {/* 4. Reminder Time */}
+      {/* Reminder Row */}
       <View>
-        <Text variant="label" className="mb-2">{t("notifications.habitRemindersTitle").toUpperCase()}</Text>
-        <Input placeholder="e.g. 08:30" value={reminderTime} onChangeText={setReminderTime} maxLength={10} />
+        <Text variant="label" className="mb-2">{t("habits.reminder").toUpperCase()}</Text>
+        <View className="flex-row items-center gap-2">
+          <Pressable onPress={() => setPickerVisible(true)} className="flex-1 bg-surface p-3 rounded-card border border-border flex-row items-center justify-between min-h-[44px]">
+            <View className="flex-row items-center gap-2.5">
+              <Bell size={18} color={reminderTime ? THEME_COLORS.primary : THEME_COLORS.text.muted} />
+              <Text variant="body" className="font-semibold text-sm">
+                {reminderTime ? formatTime(reminderTime) : t("habits.noReminder")}
+              </Text>
+            </View>
+            <Clock size={16} color={THEME_COLORS.text.muted} />
+          </Pressable>
+          {Boolean(reminderTime) && (
+            <Button variant="ghost" size="sm" title={t("habits.removeReminder")} onPress={() => setReminderTime("")} className="min-h-[44px]" />
+          )}
+        </View>
       </View>
 
-      {/* Save Button */}
-      <Button
-        variant="primary"
-        title={isEditing ? t("common.save") : t("habits.newHabit")}
-        loading={submitting}
-        onPress={handleSave}
-        className="mt-2"
-      />
+      <Button variant="primary" title={isEditing ? t("common.save") : t("habits.newHabit")} loading={submitting} onPress={handleSave} className="mt-2" />
 
-      {/* In Edit mode: stats, archive & delete */}
       {isEditing && initialHabit && onArchive && onDelete && (
         <HabitStatsSection habit={initialHabit} onArchive={onArchive} onDelete={onDelete} />
       )}
+
+      <TimePickerSheet
+        visible={pickerVisible}
+        onClose={() => setPickerVisible(false)}
+        initialTime={reminderTime || "09:00"}
+        title={t("habits.reminder")}
+        presets={presets}
+        clearLabel={t("habits.removeReminder")}
+        onSelectTime={(time) => {
+          setReminderTime(time || "");
+          setPickerVisible(false);
+        }}
+      />
     </View>
   );
 }

@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Pressable } from "react-native";
-import { Check, Vibrate, Translate, Palette } from "@/components/icons";
+import { Check, Vibrate, Translate, Palette, Clock } from "@/components/icons";
 import { Card, Text, Toggle, Button, Pill } from "@/components/ui";
 import { ACCENT_LIST, type AccentKey } from "@/lib/theme/accents";
 import { useAccent } from "@/lib/theme/store";
@@ -14,6 +14,8 @@ export function AppearanceSection() {
   const { key: currentAccent, accent, setAccent } = useAccent();
   const hapticsEnabled = useSettingsStore((s) => s.hapticsEnabled);
   const setHaptics = useSettingsStore((s) => s.setHaptics);
+  const is24Hour = useSettingsStore((s) => s.is24Hour);
+  const setIs24Hour = useSettingsStore((s) => s.setIs24Hour);
 
   const handleAccentPress = (accentKey: AccentKey) => {
     Haptics.selectionAsync();
@@ -121,7 +123,7 @@ export function AppearanceSection() {
       </View>
 
       {/* Haptics Toggle */}
-      <View className="pt-3 border-t border-border flex-row items-center justify-between min-h-[48px]">
+      <View className="py-3 border-t border-border flex-row items-center justify-between min-h-[48px]">
         <View className="flex-row items-center gap-2.5 flex-1 pr-3">
           <Vibrate size={18} color={THEME_COLORS.text.secondary} />
           <View className="flex-1">
@@ -137,6 +139,26 @@ export function AppearanceSection() {
           value={hapticsEnabled}
           onValueChange={setHaptics}
           accessibilityLabel="Toggle Haptics"
+        />
+      </View>
+
+      {/* 24-Hour Time Toggle */}
+      <View className="pt-3 border-t border-border flex-row items-center justify-between min-h-[48px]">
+        <View className="flex-row items-center gap-2.5 flex-1 pr-3">
+          <Clock size={18} color={THEME_COLORS.text.secondary} />
+          <View className="flex-1">
+            <Text variant="body" className="font-medium text-text-primary">
+              {t("settings.use24Hour")}
+            </Text>
+            <Text variant="caption">
+              {t("settings.use24HourHelp")}
+            </Text>
+          </View>
+        </View>
+        <Toggle
+          value={is24Hour}
+          onValueChange={setIs24Hour}
+          accessibilityLabel="Toggle 24-Hour Time"
         />
       </View>
     </Card>

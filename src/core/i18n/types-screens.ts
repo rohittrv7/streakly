@@ -65,6 +65,8 @@ export interface HabitsTranslationSchema {
   archiveHabit: string;
   archiveConfirm: string;
   restDay: string;
+  reminder: string; noReminder: string; removeReminder: string;
+  reminderMorning: string; reminderAfternoon: string; reminderEvening: string; reminderNight: string;
 }
 
 export interface PlannerTranslationSchema {

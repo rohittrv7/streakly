@@ -10,6 +10,7 @@ import { THEME_COLORS } from "@/lib/theme";
 import { todayStr } from "@/core/utils/dates";
 import { useLinksProgress } from "@/features/youtube";
 import { useT } from "@/core/i18n";
+import { formatTime } from "@/core/utils/time";
 
 export interface PlannerTaskRowProps {
   task: Task;
@@ -81,8 +82,8 @@ export function PlannerTaskRow({
                 <View className="flex-row items-center gap-1 bg-elevated px-1.5 py-0.5 rounded-pill border border-border">
                   <Clock size={10} color={THEME_COLORS.text.muted} />
                   <Text variant="caption" className="text-[10px] text-text-secondary">
-                    {task.startTime}
-                    {task.endTime ? ` - ${task.endTime}` : ""}
+                    {formatTime(task.startTime)}
+                    {task.endTime ? ` - ${formatTime(task.endTime)}` : ""}
                   </Text>
                 </View>
               )}

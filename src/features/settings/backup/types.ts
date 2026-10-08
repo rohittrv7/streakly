@@ -7,6 +7,7 @@ export const USER_PREFERENCES_KEYS = [
   "haptics_enabled",
   "notification_settings",
   "focus_settings",
+  "use_24_hour_time",
 ] as const;
 
 export type UserPreferenceKey = (typeof USER_PREFERENCES_KEYS)[number];

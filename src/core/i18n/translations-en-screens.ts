@@ -74,6 +74,13 @@ export const enHabits: HabitsTranslationSchema = {
   archiveHabit: "Archive Habit",
   archiveConfirm: "Are you sure you want to archive this habit?",
   restDay: "Rest Day",
+  reminder: "Reminder",
+  noReminder: "No reminder",
+  removeReminder: "Remove reminder",
+  reminderMorning: "Morning",
+  reminderAfternoon: "Afternoon",
+  reminderEvening: "Evening",
+  reminderNight: "Night",
 };
 
 export const enPlanner: PlannerTranslationSchema = {

@@ -7,7 +7,7 @@ import { Card, Text, Sheet, Button } from "@/components/ui";
 import { THEME_COLORS } from "@/lib/theme";
 import { buildOpenUrl } from "../utils";
 import type { TaskLink } from "../types";
-import { getYouTubeApiKey } from "../api-key";
+import { getYouTubeApiKey, getImportErrorMessage } from "../api-key";
 import { useYouTubeStore } from "../store";
 import { PlaylistVideoRow } from "./PlaylistVideoRow";
 import { PlanPlaylistSheet } from "../plan/PlanPlaylistSheet";
@@ -24,13 +24,10 @@ export interface PlaylistCardProps {
 
 export function PlaylistCard({ link, childVideos = [], mode = "edit", onUpdateProgress, onRemove, onOpenVideo }: PlaylistCardProps) {
   const store = useYouTubeStore();
-  const [hasKey, setHasKey] = useState(false);
-  const [expanded, setExpanded] = useState(false);
-  const [showAll, setShowAll] = useState(false);
-  const [importing, setImporting] = useState(false);
-  const [menuVisible, setMenuVisible] = useState(false);
-  const [confirmRemoveVisible, setConfirmRemoveVisible] = useState(false);
-  const [planSheetVisible, setPlanSheetVisible] = useState(false);
+  const [hasKey, setHasKey] = useState(false); const [expanded, setExpanded] = useState(false);
+  const [showAll, setShowAll] = useState(false); const [importing, setImporting] = useState(false);
+  const [importError, setImportError] = useState<string | null>(null); const [menuVisible, setMenuVisible] = useState(false);
+  const [confirmRemoveVisible, setConfirmRemoveVisible] = useState(false); const [planSheetVisible, setPlanSheetVisible] = useState(false);
 
   useEffect(() => { getYouTubeApiKey().then((k) => setHasKey(Boolean(k))).catch(() => {}); }, []);
 
@@ -45,12 +42,15 @@ export function PlaylistCard({ link, childVideos = [], mode = "edit", onUpdatePr
   const handleImport = async () => {
     if (!link.externalId) return;
     setImporting(true);
+    setImportError(null);
     try {
       await store.importPlaylist(link.id, link.taskId, link.externalId);
       setExpanded(true);
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
     } catch (err) {
-      console.warn("Import failed:", err);
+      console.warn("Import failed:", err instanceof Error ? err.message : String(err));
+      setImportError(getImportErrorMessage(err));
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error).catch(() => {});
     } finally {
       setImporting(false);
     }
@@ -60,9 +60,13 @@ export function PlaylistCard({ link, childVideos = [], mode = "edit", onUpdatePr
     setMenuVisible(false);
     if (!link.externalId) return;
     setImporting(true);
+    setImportError(null);
     try {
       await store.resyncPlaylist(link.id, link.taskId, link.externalId);
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+    } catch (err) {
+      console.warn("Resync failed:", err instanceof Error ? err.message : String(err));
+      setImportError(getImportErrorMessage(err));
     } finally {
       setImporting(false);
     }
@@ -72,7 +76,6 @@ export function PlaylistCard({ link, childVideos = [], mode = "edit", onUpdatePr
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
     onUpdateProgress(Math.max(0, Math.min(total, done + d)), total);
   };
-
   return (
     <Card variant="surface" className="p-3 mb-2.5 border border-border">
       <View className="flex-row items-center justify-between">
@@ -118,10 +121,11 @@ export function PlaylistCard({ link, childVideos = [], mode = "edit", onUpdatePr
       {/* Unimported state: Import button or manual fallback */}
       {!hasChildren && (
         <View className="pt-1.5">
-          {hasKey ? (
+          {hasKey && (
             <Button variant="primary" size="sm" title={importing ? "Importing..." : "Import Videos"} disabled={importing} onPress={handleImport} className="mb-2" />
-          ) : (
-            <Text variant="caption" className="text-[10px] text-text-muted mb-2">Add a YouTube API key in Settings to import all videos.</Text>
+          )}
+          {importError && (
+            <Text variant="caption" className="text-[11px] text-coral mb-2">{importError}</Text>
           )}
           <View className="flex-row items-center justify-between pt-1">
             <Text variant="caption" className="text-[11px] text-text-muted">Progress Stepper</Text>
@@ -145,16 +149,11 @@ export function PlaylistCard({ link, childVideos = [], mode = "edit", onUpdatePr
             />
           ))}
           {childVideos.length > 5 && (
-            <Button
-              variant="ghost" size="sm"
-              title={showAll ? "Show Less" : `Show all ${childVideos.length}`}
-              onPress={() => setShowAll(!showAll)} className="mt-1"
-            />
+            <Button variant="ghost" size="sm" title={showAll ? "Show Less" : `Show all ${childVideos.length}`} onPress={() => setShowAll(!showAll)} className="mt-1" />
           )}
         </View>
       )}
 
-      {/* Options & Confirmation Sheets */}
       <Sheet visible={menuVisible} onClose={() => setMenuVisible(false)} title="Playlist Options">
         <View className="gap-2 pb-2">
           {hasChildren && (
